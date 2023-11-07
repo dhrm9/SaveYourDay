@@ -1,4 +1,5 @@
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_4/data/database.dart';
 import 'package:flutter_application_4/util/dialog_box.dart';
@@ -76,12 +77,17 @@ class _HomePageState extends State<HomePage> {
     });
     db.updateDataBase();
   }
+ 
+ void signUserOut() {
+  FirebaseAuth.instance.signOut();
+ }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.yellow[200],
+      backgroundColor: Colors.grey,
       appBar: AppBar(
+        actions: [IconButton(onPressed: signUserOut, icon: Icon(Icons.logout))],
         title: Text('TO DO'),
         elevation: 0,
       ),
