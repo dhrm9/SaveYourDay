@@ -35,13 +35,13 @@ class _HomePageState extends State<HomePage> {
    
    //text controller 
    final _controller=TextEditingController();
-   
+   final _desciptionController = TextEditingController();
    
 
   //check box was tapped 
   void checkBoxChanged(bool? value,int index){
     setState(() {
-      db.toDoList[index][1]=!db.toDoList[index][1];
+      db.toDoList[index][2]=!db.toDoList[index][2];
     });
     db.updateDataBase();
   }
@@ -49,8 +49,9 @@ class _HomePageState extends State<HomePage> {
   //save new task 
   void saveNewTask(){
     setState(() {
-      db.toDoList.add([ _controller.text, false]);
+      db.toDoList.add([ _controller.text , _desciptionController.text, false]);
       _controller.clear(); 
+      _desciptionController.clear();
     });
      Navigator.of(context).pop();
      db.updateDataBase();
@@ -63,6 +64,7 @@ class _HomePageState extends State<HomePage> {
       builder: (context) {
         return DialogBox(
           controller: _controller,
+          descriptionController: _desciptionController,
           onSave: saveNewTask,
           onCancle: () => Navigator.of(context).pop(),
         );
@@ -100,10 +102,11 @@ class _HomePageState extends State<HomePage> {
         itemBuilder: (context, index) {
           return ToDoTile(
             onChanged: (value) => checkBoxChanged(value,index), 
-            taskCompleted: db.toDoList[index][1], 
+            taskCompleted:  db.toDoList[index][2], 
             taskName: db.toDoList[index][0],
+            description: db.toDoList[index][1],
             deleteFunction: (context) => deleteTask(index),
-
+             
           );
         },
       ),

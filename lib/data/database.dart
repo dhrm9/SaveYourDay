@@ -12,8 +12,7 @@ class ToDoDataBase {
    //run this method if app is opening very first time
    void createInitialData() {
     toDoList = [
-      ["make tutorial",false],
-      ["do excercise",false],
+     ["Hello" , "jfaskjfal" , false],
     ];
    }
    

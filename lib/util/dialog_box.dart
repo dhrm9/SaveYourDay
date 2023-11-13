@@ -4,12 +4,14 @@ import 'package:flutter_application_4/util/my_button.dart';
 
 class DialogBox extends StatelessWidget {
   final controller;
+  final descriptionController;
   VoidCallback onSave;
   VoidCallback onCancle;
 
    DialogBox({
     super.key,
     required this.controller,
+    required this.descriptionController,
     required this.onCancle,
     required this.onSave,
     });
@@ -19,19 +21,25 @@ class DialogBox extends StatelessWidget {
     return AlertDialog(
       backgroundColor: Colors.yellow[300],
       content: Container(
-        height: 120,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
           //get user input
           TextField(
               controller: controller,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
               border: OutlineInputBorder(),
               hintText: "add a new task",
               ),
           ),
-
+          TextField(
+              controller: descriptionController,
+              decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: "add description",
+              ),
+          ),
+ 
           //buttons -> save+ cancle
            Row(
             mainAxisAlignment: MainAxisAlignment.end,
