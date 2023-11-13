@@ -1,4 +1,3 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_4/data/database.dart';
@@ -15,13 +14,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-   //refrence to the box
-   final _myBox = Hive.box('mybox');
-   ToDoDataBase db =ToDoDataBase();
+  //refrence to the box
+  final _myBox = Hive.box('mybox');
+  ToDoDataBase db = ToDoDataBase();
 
-   @override
+  @override
   void initState() {
-    
     //if this is the first time ever opening the app,then create default data
     if (_myBox.get("TODOLIST") == null) {
       db.createInitialData();
@@ -32,35 +30,34 @@ class _HomePageState extends State<HomePage> {
 
     super.initState();
   }
-   
-   //text controller 
-   final _controller=TextEditingController();
-   final _desciptionController = TextEditingController();
-   
 
-  //check box was tapped 
-  void checkBoxChanged(bool? value,int index){
+  //text controller
+  final _controller = TextEditingController();
+  final _desciptionController = TextEditingController();
+
+  //check box was tapped
+  void checkBoxChanged(bool? value, int index) {
     setState(() {
-      db.toDoList[index][2]=!db.toDoList[index][2];
+      db.toDoList[index][2] = !db.toDoList[index][2];
     });
     db.updateDataBase();
   }
 
-  //save new task 
-  void saveNewTask(){
+  //save new task
+  void saveNewTask() {
     setState(() {
-      db.toDoList.add([ _controller.text , _desciptionController.text, false]);
-      _controller.clear(); 
+      db.toDoList.add([_controller.text, _desciptionController.text, false]);
+      _controller.clear();
       _desciptionController.clear();
     });
-     Navigator.of(context).pop();
-     db.updateDataBase();
+    Navigator.of(context).pop();
+    db.updateDataBase();
   }
-  
+
   //create a new task
-  void createNewTask(){
+  void createNewTask() {
     showDialog(
-      context: context, 
+      context: context,
       builder: (context) {
         return DialogBox(
           controller: _controller,
@@ -72,17 +69,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  //delete task 
-  void deleteTask(int index){
+  //delete task
+  void deleteTask(int index) {
     setState(() {
       db.toDoList.removeAt(index);
     });
     db.updateDataBase();
   }
- 
- void signUserOut() {
-  FirebaseAuth.instance.signOut();
- }
+
+  void signUserOut() {
+    FirebaseAuth.instance.signOut();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,19 +91,18 @@ class _HomePageState extends State<HomePage> {
         elevation: 0,
       ),
       floatingActionButton: FloatingActionButton(
-         onPressed: createNewTask,
-         child: Icon(Icons.add),
+        onPressed: createNewTask,
+        child: Icon(Icons.add),
       ),
       body: ListView.builder(
         itemCount: db.toDoList.length,
         itemBuilder: (context, index) {
           return ToDoTile(
-            onChanged: (value) => checkBoxChanged(value,index), 
-            taskCompleted:  db.toDoList[index][2], 
+            onChanged: (value) => checkBoxChanged(value, index),
+            taskCompleted: db.toDoList[index][2],
             taskName: db.toDoList[index][0],
             description: db.toDoList[index][1],
             deleteFunction: (context) => deleteTask(index),
-             
           );
         },
       ),
