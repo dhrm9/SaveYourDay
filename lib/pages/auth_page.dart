@@ -10,13 +10,13 @@ class AuthPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
+     //to check if user is logged in or not
       body: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context , snapshot) {
           //user logged in
            if(snapshot.hasData){
-            return HomePage();
+            return const HomePage();
            }
 
           //user not logged in

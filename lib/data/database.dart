@@ -12,13 +12,12 @@ class ToDoDataBase {
    //run this method if app is opening very first time
    void createInitialData() {
     toDoList = [
-     ["Hello" , "jfaskjfal" , false],
+     ["Hello" , "how are you" , false],
     ];
    }
    
 
    //load the data from database
-
    void loadData(){
      toDoList = _mybox.get("TODOLIST");
    }
