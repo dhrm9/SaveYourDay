@@ -17,9 +17,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+ 
   //text editing controller
   final emailController = TextEditingController();
-
   final passwordController = TextEditingController();
 
 //sign user in method
@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  //wrong email method
+  //wrong credentials method
   void showErrorMessage(String message) {
     showDialog(
       context: context,
@@ -75,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
               //logo
           
               const Icon(
-                Icons.lock,
+                Icons.lock_person,
                 size: 100,
               ),
           
@@ -160,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
               ),
-              //google or apple
+              //google 
           
               const SizedBox(height: 30),
           
