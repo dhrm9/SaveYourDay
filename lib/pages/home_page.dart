@@ -90,10 +90,15 @@ class _HomePageState extends State<HomePage> {
         title: Text('TO DO'),
         elevation: 0,
       ),
+
+      //button to add the tasks
       floatingActionButton: FloatingActionButton(
         onPressed: createNewTask,
         child: Icon(Icons.add),
       ),
+
+      
+      //build a dynamic list so that we can add later by + button
       body: ListView.builder(
         itemCount: db.toDoList.length,
         itemBuilder: (context, index) {
