@@ -39,6 +39,7 @@ class _ToDoTileState extends State<ToDoTile> {
             )
           ],
         ),
+        //tile 
         child: Container(
           padding: EdgeInsets.all(24),
           decoration: BoxDecoration(
@@ -58,7 +59,7 @@ class _ToDoTileState extends State<ToDoTile> {
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget> [
                       //task details
                       Text(
                         widget.taskName,
@@ -72,13 +73,19 @@ class _ToDoTileState extends State<ToDoTile> {
                       ),
                       //Description details
                       Text(
-                        widget.description,
+                        // widget.description,
+                        widget.description.length >15 ? widget.description.substring(0,10)+'...': widget.description,
+                        
+                        
                         style: TextStyle(
+                          
                           decoration: widget.taskCompleted
                               ? TextDecoration.lineThrough
                               : TextDecoration.none,
                         ),
-                      ),
+                      ), 
+                      
+                      
                     ],
                   ),
                 ],
