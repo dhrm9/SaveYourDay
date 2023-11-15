@@ -1,59 +1,120 @@
-
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_4/util/my_button.dart';
 
-class DialogBox extends StatelessWidget {
-  final controller;
-  final descriptionController;
+// ignore: must_be_immutable
+class DialogBox extends StatefulWidget {
+  final TextEditingController controller;
+  final TextEditingController descriptionController;
+  final List<String> taskTag;
   VoidCallback onSave;
-  VoidCallback onCancle;
+  VoidCallback oncancel;
 
-   DialogBox({
+  DialogBox({
     super.key,
     required this.controller,
     required this.descriptionController,
-    required this.onCancle,
+    required this.taskTag,
+    required this.oncancel,
     required this.onSave,
-    });
+  });
+
+  @override
+  State<DialogBox> createState() => _DialogBoxState();
+}
+
+class _DialogBoxState extends State<DialogBox> {
+  final List<String> taskTags = ['Work', 'School', 'Home', 'Other'];
+  late String selectedValue = '';
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Colors.yellow[300],
+      backgroundColor: Colors.grey[300],
       content: Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
+        height: 400,
+        width: 400,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(50)),
+        child:
+            Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
           //get user input
           TextField(
-              controller: controller,
-              decoration: const InputDecoration(
+            controller: widget.controller,
+            decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              hintText: "add a new task",
-              ),
+              hintText: "Add a new task",
+            ),
           ),
           TextField(
-              controller: descriptionController,
-              decoration: const InputDecoration(
+            
+            controller: widget.descriptionController,
+            decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              hintText: "add description",
-              ),
+              hintText: "Add description",
+            ),
           ),
- 
-          //buttons -> save+ cancle
-           Row(
+
+          //task tag
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: DropdownButtonFormField2(
+                  
+                  decoration: InputDecoration(
+                    isDense: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
+                  isExpanded: true,
+                  hint: Text(
+                    widget.taskTag[0] == 'new' ? "Add a task tag" : widget.taskTag[0],
+                    style: const TextStyle(fontSize: 14),
+                  ),
+
+                  // validator: (value) => value == null
+                  //     ? 'Please select the task tag' : null,
+                  items: taskTags
+                      .map(
+                        (item) => DropdownMenuItem<String>(
+                          value: item,
+                          child: Text(
+                            item,
+                            style: const TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (String? value) => setState(
+                    () {
+                      if (value != null) {selectedValue = value; widget.taskTag[0] = value;}
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+          //buttons -> save+ cancel
+          Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               //save button
-              MyButton(text: "save", onPressed: onSave ),
+              MyButton(
+                  text: "save",
+                  onPressed: () {
+                    // Pass the selected task tag to the onSave callback
+                    widget.onSave();
+                  }),
 
-              const SizedBox(width:8),
-              //cancle button
-              MyButton(text: "cancle", onPressed: onCancle),
+              const SizedBox(width: 8),
+              //cancel button
+              MyButton(text: "cancel", onPressed: widget.oncancel),
             ],
-           )
+          )
         ]),
-        ),
+      ),
     );
   }
 }

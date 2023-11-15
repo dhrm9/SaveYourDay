@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_4/data/database.dart';
+import 'package:flutter_application_4/model/task.dart';
 import 'package:flutter_application_4/util/dialog_box.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -18,6 +21,16 @@ class _HomePageState extends State<HomePage> {
   final _myBox = Hive.box('mybox');
   ToDoDataBase db = ToDoDataBase();
 
+  //text controller
+  final _controller = TextEditingController();
+  final _desciptionController = TextEditingController();
+  final List<String> taskTag = ["new"];
+
+  int generateRandomNumber(int min, int max) {
+    final random = Random();
+    return min + random.nextInt(max - min + 1);
+  }
+
   @override
   void initState() {
     //if this is the first time ever opening the app,then create default data
@@ -31,14 +44,12 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  //text controller
-  final _controller = TextEditingController();
-  final _desciptionController = TextEditingController();
+  
 
   //check box was tapped
-  void checkBoxChanged(bool? value, int index) {
+  void checkBoxChanged(bool? value,int index) {
     setState(() {
-      db.toDoList[index][2] = !db.toDoList[index][2];
+      db.toDoList[index].isCompleted = !db.toDoList[index].isCompleted;
     });
     db.updateDataBase();
   }
@@ -46,7 +57,12 @@ class _HomePageState extends State<HomePage> {
   //save new task
   void saveNewTask() {
     setState(() {
-      db.toDoList.add([_controller.text, _desciptionController.text, false]);
+
+      int newId = generateRandomNumber(1000 , 9999);
+
+      Task newTask = Task(accessType: "Private", taskDescription: _desciptionController.text, taskid: newId, taskName: _controller.text, taskTag:  taskTag[0] , isCompleted: false);
+      
+      db.toDoList.add(newTask);
       _controller.clear();
       _desciptionController.clear();
     });
@@ -62,8 +78,9 @@ class _HomePageState extends State<HomePage> {
         return DialogBox(
           controller: _controller,
           descriptionController: _desciptionController,
+          taskTag: taskTag,
           onSave: saveNewTask,
-          onCancle: () => Navigator.of(context).pop(),
+          oncancel: () => Navigator.of(context).pop(),
         );
       },
     );
@@ -97,17 +114,18 @@ class _HomePageState extends State<HomePage> {
         child: Icon(Icons.add),
       ),
 
-      
       //build a dynamic list so that we can add later by + button
       body: ListView.builder(
         itemCount: db.toDoList.length,
         itemBuilder: (context, index) {
+          Task t = db.toDoList[index];
           return ToDoTile(
             onChanged: (value) => checkBoxChanged(value, index),
-            taskCompleted: db.toDoList[index][2],
-            taskName: db.toDoList[index][0],
-            description: db.toDoList[index][1],
+            taskCompleted: t.isCompleted,
+            taskName: t.taskName,
+            description: t.taskDescription,
             deleteFunction: (context) => deleteTask(index),
+            taskTag: t.taskTag,
           );
         },
       ),

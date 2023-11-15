@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_4/util/dialog_box.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+
+// ignore: must_be_immutable
 
 class ToDoTile extends StatefulWidget {
   final String taskName;
   final bool taskCompleted;
   final String description;
+  final String taskTag;
 
   Function(bool?)? onChanged;
   Function(BuildContext)? deleteFunction;
   // add this line
 
+  // ignore: use_key_in_widget_constructors
   ToDoTile({
     required this.onChanged,
     required this.taskCompleted,
     required this.description,
     required this.taskName,
     required this.deleteFunction,
+    required this.taskTag,
   });
 
   @override
@@ -23,8 +29,43 @@ class ToDoTile extends StatefulWidget {
 }
 
 class _ToDoTileState extends State<ToDoTile> {
+  void _editTask() {
+    TextEditingController taskNameController =
+        TextEditingController(text: widget.taskName);
+    TextEditingController descriptionController =
+        TextEditingController(text: widget.description);
+    String s = widget.taskTag;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return DialogBox(
+            controller: taskNameController,
+            descriptionController: descriptionController,
+            taskTag: [s],
+            onSave: () {},
+            oncancel: () {
+              Navigator.pop(context); // Close the dialog
+            });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    Color taskColor = Colors.black;
+    switch (widget.taskTag) {
+      case 'Work':
+        taskColor = Colors.green;
+        break;
+      case 'School':
+        taskColor = Colors.blue;
+        break;
+      case 'Home':
+        taskColor = Colors.red;
+        break;
+    }
+
     return Padding(
       padding: const EdgeInsets.only(left: 25.0, right: 25, top: 25),
       child: Slidable(
@@ -39,63 +80,71 @@ class _ToDoTileState extends State<ToDoTile> {
             )
           ],
         ),
-        //tile 
+        //tile
         child: Container(
           padding: EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: Colors.white70,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Checkbox and task information
-              Row(
-                children: [
-                  Checkbox(
-                    value: widget.taskCompleted,
-                    onChanged: widget.onChanged,
-                    activeColor: Colors.black,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget> [
-                      //task details
-                      Text(
-                        widget.taskName,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          decoration: widget.taskCompleted
-                              ? TextDecoration.lineThrough
-                              : TextDecoration.none,
-                        ),
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Row(
+              children: [
+                //color box
+                Container(
+                  height: 20,
+                  width: 20,
+                  decoration: BoxDecoration(
+                      color: taskColor,
+                      borderRadius: BorderRadius.circular(100)
+                      //more than 50% of width makes circle
                       ),
-                      //Description details
-                      Text(
-                        // widget.description,
-                        widget.description.length >15 ? widget.description.substring(0,10)+'...': widget.description,
-                        
-                        
-                        style: TextStyle(
-                          
-                          decoration: widget.taskCompleted
-                              ? TextDecoration.lineThrough
-                              : TextDecoration.none,
-                        ),
-                      ), 
-                      
-                      
-                    ],
-                  ),
-                ],
+                ),
+                // Checkbox and task information
+                Checkbox(
+                  value: widget.taskCompleted,
+                  onChanged: widget.onChanged,
+                  activeColor: Colors.black,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    //task details
+                    Text(
+                      widget.taskName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        decoration: widget.taskCompleted
+                            ? TextDecoration.lineThrough
+                            : TextDecoration.none,
+                      ),
+                    ),
+                    //Description details
+                    Text(
+                      // widget.description,
+                      widget.description.length > 30
+                          ? widget.description.substring(0, 25) + '...'
+                          : widget.description,
+                      style: TextStyle(
+                        decoration: widget.taskCompleted
+                            ? TextDecoration.lineThrough
+                            : TextDecoration.none,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            // Edit button
+            GestureDetector(
+              child: IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: _editTask,
               ),
-              // Edit button
-              GestureDetector(
-                child: IconButton(icon: Icon(Icons.edit), onPressed: () {}),
-              ),
-            ],
-          ),
+            ),
+          ]),
         ),
       ),
     );

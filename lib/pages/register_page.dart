@@ -85,7 +85,7 @@ class _RegisterpageState extends State<Registerpage> {
               //logo
 
               const Icon(
-                Icons.lock,
+                Icons.lock_person,
                 size: 50,
               ),
 

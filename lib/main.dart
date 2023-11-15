@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_4/model/task.dart';
 import 'package:flutter_application_4/pages/auth_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,9 +10,11 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  Hive.registerAdapter(TaskAdapter());
   
   //initalize the hive 
-  await Hive.initFlutter();
+  await Hive.initFlutter(); 
 
   //open a box 
   await Hive.openBox('mybox');
