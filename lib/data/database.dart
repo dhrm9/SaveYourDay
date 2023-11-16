@@ -21,5 +21,6 @@ class ToDoDataBase {
 
   void updateDataBase() {
     _mybox.put("TODOLIST", toDoList);
+    loadData();
   }
 }

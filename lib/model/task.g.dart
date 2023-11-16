@@ -19,7 +19,7 @@ class TaskAdapter extends TypeAdapter<Task> {
     return Task(
       accessType: fields[0] as String,
       taskDescription: fields[3] as String,
-      taskid: fields[1] as int,
+      taskId: fields[1] as int,
       taskName: fields[2] as String,
       taskTag: fields[4] as String,
       isCompleted: fields[5] as bool,
@@ -33,7 +33,7 @@ class TaskAdapter extends TypeAdapter<Task> {
       ..writeByte(0)
       ..write(obj.accessType)
       ..writeByte(1)
-      ..write(obj.taskid)
+      ..write(obj.taskId)
       ..writeByte(2)
       ..write(obj.taskName)
       ..writeByte(3)

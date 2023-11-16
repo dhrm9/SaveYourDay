@@ -8,7 +8,7 @@ class Task {
   String accessType;
 
   @HiveField(1)
-  int taskid;
+  int taskId;
 
   @HiveField(2)
   String taskName;
@@ -25,7 +25,7 @@ class Task {
   Task({
     required this.accessType,
     required this.taskDescription,
-    required this.taskid,
+    required this.taskId,
     required this.taskName,
     required this.taskTag,
     required this.isCompleted,
@@ -33,7 +33,7 @@ class Task {
 
   Map<String, dynamic> getdata() => {
         'accessType': accessType,
-        'taskid': taskid,
+        'taskId': taskId,
         'taskName': taskName,
         'taskDescription': taskDescription,
         'taskTag': taskTag,

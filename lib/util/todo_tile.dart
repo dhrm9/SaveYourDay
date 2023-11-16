@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_4/model/task.dart';
 import 'package:flutter_application_4/util/dialog_box.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:hive/hive.dart';
 
 // ignore: must_be_immutable
 
@@ -9,9 +11,11 @@ class ToDoTile extends StatefulWidget {
   final bool taskCompleted;
   final String description;
   final String taskTag;
+  final int taskId;
 
   Function(bool?)? onChanged;
   Function(BuildContext)? deleteFunction;
+  Function(List) onEdited;
   // add this line
 
   // ignore: use_key_in_widget_constructors
@@ -22,6 +26,8 @@ class ToDoTile extends StatefulWidget {
     required this.taskName,
     required this.deleteFunction,
     required this.taskTag,
+    required this.taskId,
+    required this.onEdited,
   });
 
   @override
@@ -34,7 +40,7 @@ class _ToDoTileState extends State<ToDoTile> {
         TextEditingController(text: widget.taskName);
     TextEditingController descriptionController =
         TextEditingController(text: widget.description);
-    String s = widget.taskTag;
+    List<String> s = [widget.taskTag];
 
     showDialog(
       context: context,
@@ -42,8 +48,24 @@ class _ToDoTileState extends State<ToDoTile> {
         return DialogBox(
             controller: taskNameController,
             descriptionController: descriptionController,
-            taskTag: [s],
-            onSave: () {},
+            taskTag: s,
+            onSave: () {
+              List todoList = Hive.box('mybox').get("TODOLIST");
+
+              for(int i = 0 ;i < todoList.length ; i++){
+                Task c = todoList[i];
+                if( c.taskId == widget.taskId){
+                    c.taskName = taskNameController.text;
+                    c.taskDescription = descriptionController.text;
+                    c.taskTag = s[0];
+                    widget.onEdited([i , c]);
+                    taskNameController.clear();
+                    descriptionController.clear();
+                    break;
+                }
+
+              }
+            },
             oncancel: () {
               Navigator.pop(context); // Close the dialog
             });

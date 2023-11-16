@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage> {
 
       int newId = generateRandomNumber(1000 , 9999);
 
-      Task newTask = Task(accessType: "Private", taskDescription: _desciptionController.text, taskid: newId, taskName: _controller.text, taskTag:  taskTag[0] , isCompleted: false);
+      Task newTask = Task(accessType: "Private", taskDescription: _desciptionController.text, taskId: newId, taskName: _controller.text, taskTag:  taskTag[0] , isCompleted: false);
       
       db.toDoList.add(newTask);
       _controller.clear();
@@ -98,6 +98,15 @@ class _HomePageState extends State<HomePage> {
     FirebaseAuth.instance.signOut();
   }
 
+  void edit(List t){
+    setState(() {
+       db.toDoList[t[0]] = t[1];
+   
+    });
+    Navigator.of(context).pop();
+    db.updateDataBase();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,8 +130,10 @@ class _HomePageState extends State<HomePage> {
           Task t = db.toDoList[index];
           return ToDoTile(
             onChanged: (value) => checkBoxChanged(value, index),
+            onEdited: edit,
             taskCompleted: t.isCompleted,
             taskName: t.taskName,
+            taskId: t.taskId,
             description: t.taskDescription,
             deleteFunction: (context) => deleteTask(index),
             taskTag: t.taskTag,
