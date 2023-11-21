@@ -23,13 +23,14 @@ class TaskAdapter extends TypeAdapter<Task> {
       taskName: fields[2] as String,
       taskTag: fields[4] as String,
       isCompleted: fields[5] as bool,
+      imagePath: fields[6] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Task obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.accessType)
       ..writeByte(1)
@@ -41,7 +42,9 @@ class TaskAdapter extends TypeAdapter<Task> {
       ..writeByte(4)
       ..write(obj.taskTag)
       ..writeByte(5)
-      ..write(obj.isCompleted);
+      ..write(obj.isCompleted)
+      ..writeByte(6)
+      ..write(obj.imagePath);
   }
 
   @override

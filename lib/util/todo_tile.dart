@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_4/model/task.dart';
 import 'package:flutter_application_4/util/dialog_box.dart';
+import 'package:flutter_application_4/util/task_details.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hive/hive.dart';
 
@@ -12,7 +13,7 @@ class ToDoTile extends StatefulWidget {
   final String description;
   final String taskTag;
   final int taskId;
-
+ 
   Function(bool?)? onChanged;
   Function(BuildContext)? deleteFunction;
   Function(List) onEdited;
@@ -35,6 +36,24 @@ class ToDoTile extends StatefulWidget {
 }
 
 class _ToDoTileState extends State<ToDoTile> {
+  void _viewTaskDetails() {
+    // Navigate to TaskDetailPage and pass the task details
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TaskDetailPage(
+            task: Task(
+          accessType: "private",
+          taskId: widget.taskId,
+          taskName: widget.taskName,
+          taskDescription: widget.description,
+          taskTag: widget.taskTag,
+          isCompleted: widget.taskCompleted,
+        )),
+      ),
+    );
+  }
+
   void _editTask() {
     TextEditingController taskNameController =
         TextEditingController(text: widget.taskName);
@@ -52,18 +71,17 @@ class _ToDoTileState extends State<ToDoTile> {
             onSave: () {
               List todoList = Hive.box('mybox').get("TODOLIST");
 
-              for(int i = 0 ;i < todoList.length ; i++){
+              for (int i = 0; i < todoList.length; i++) {
                 Task c = todoList[i];
-                if( c.taskId == widget.taskId){
-                    c.taskName = taskNameController.text;
-                    c.taskDescription = descriptionController.text;
-                    c.taskTag = s[0];
-                    widget.onEdited([i , c]);
-                    taskNameController.clear();
-                    descriptionController.clear();
-                    break;
+                if (c.taskId == widget.taskId) {
+                  c.taskName = taskNameController.text;
+                  c.taskDescription = descriptionController.text;
+                  c.taskTag = s[0];
+                  widget.onEdited([i, c]);
+                  taskNameController.clear();
+                  descriptionController.clear();
+                  break;
                 }
-
               }
             },
             oncancel: () {
@@ -88,85 +106,89 @@ class _ToDoTileState extends State<ToDoTile> {
         break;
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 25.0, right: 25, top: 25),
-      child: Slidable(
-        endActionPane: ActionPane(
-          motion: StretchMotion(),
-          children: [
-            SlidableAction(
-              onPressed: widget.deleteFunction,
-              icon: Icons.delete,
-              backgroundColor: Colors.red.shade300,
-              borderRadius: BorderRadius.circular(12),
-            )
-          ],
-        ),
-        //tile
-        child: Container(
-          padding: EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white70,
-            borderRadius: BorderRadius.circular(12),
+    return GestureDetector(
+      onTap: _viewTaskDetails,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 25.0, right: 25, top: 25),
+        child: Slidable(
+          endActionPane: ActionPane(
+            motion: StretchMotion(),
+            children: [
+              SlidableAction(
+                onPressed: widget.deleteFunction,
+                icon: Icons.delete,
+                backgroundColor: Colors.red.shade300,
+                borderRadius: BorderRadius.circular(12),
+              )
+            ],
           ),
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Row(
-              children: [
-                //color box
-                Container(
-                  height: 20,
-                  width: 20,
-                  decoration: BoxDecoration(
-                      color: taskColor,
-                      borderRadius: BorderRadius.circular(100)
-                      //more than 50% of width makes circle
-                      ),
-                ),
-                // Checkbox and task information
-                Checkbox(
-                  value: widget.taskCompleted,
-                  onChanged: widget.onChanged,
-                  activeColor: Colors.black,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    //task details
-                    Text(
-                      widget.taskName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        decoration: widget.taskCompleted
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
-                      ),
-                    ),
-                    //Description details
-                    Text(
-                      // widget.description,
-                      widget.description.length > 30
-                          ? widget.description.substring(0, 25) + '...'
-                          : widget.description,
-                      style: TextStyle(
-                        decoration: widget.taskCompleted
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+          //tile
+          child: Container(
+            padding: EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white70,
+              borderRadius: BorderRadius.circular(12),
             ),
-            // Edit button
-            GestureDetector(
-              child: IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: _editTask,
-              ),
-            ),
-          ]),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      //color box
+                      Container(
+                        height: 20,
+                        width: 20,
+                        decoration: BoxDecoration(
+                            color: taskColor,
+                            borderRadius: BorderRadius.circular(100)
+                            //more than 50% of width makes circle
+                            ),
+                      ),
+                      // Checkbox and task information
+                      Checkbox(
+                        value: widget.taskCompleted,
+                        onChanged: widget.onChanged,
+                        activeColor: Colors.black,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          //task details
+                          Text(
+                            widget.taskName,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              decoration: widget.taskCompleted
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
+                            ),
+                          ),
+                          //Description details
+                          Text(
+                            // widget.description,
+                            widget.description.length > 30
+                                ? widget.description.substring(0, 25) + '...'
+                                : widget.description,
+                            style: TextStyle(
+                              decoration: widget.taskCompleted
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  // Edit button
+                  GestureDetector(
+                    child: IconButton(
+                      icon: const Icon(Icons.edit),
+                      onPressed: _editTask,
+                    ),
+                  ),
+                ]),
+          ),
         ),
       ),
     );

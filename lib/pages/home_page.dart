@@ -1,9 +1,13 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_4/data/database.dart';
+import 'package:flutter_application_4/hidden/hidden_home_page.dart';
 import 'package:flutter_application_4/model/task.dart';
+import 'package:flutter_application_4/model/user.dart';
+import 'package:flutter_application_4/notification_Service/notification.dart';
 import 'package:flutter_application_4/util/dialog_box.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -16,7 +20,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
   //refrence to the box
   final _myBox = Hive.box('mybox');
   ToDoDataBase db = ToDoDataBase();
@@ -24,7 +28,7 @@ class _HomePageState extends State<HomePage> {
   //text controller
   final _controller = TextEditingController();
   final _desciptionController = TextEditingController();
-  final List<String> taskTag = ["new"];
+  final List<String> taskTag = ["new"]; 
 
   int generateRandomNumber(int min, int max) {
     final random = Random();
@@ -42,6 +46,23 @@ class _HomePageState extends State<HomePage> {
     }
 
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    loadUserData();
+  }
+
+  void loadUserData() async {
+    DocumentReference ref = FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid);
+
+    print(FirebaseAuth.instance.currentUser!.uid);
+    DocumentSnapshot snap = await ref.get();
+
+    MyUser user = MyUser.getUser(snap);
+
+
+    print(user.email);
   }
 
   //check box was tapped
@@ -75,6 +96,7 @@ class _HomePageState extends State<HomePage> {
       );
       return; // Exit the method if there is an error
     }
+   
 
     setState(() {
       int newId = generateRandomNumber(1000, 9999);
@@ -132,9 +154,49 @@ class _HomePageState extends State<HomePage> {
       db.toDoList[index] = updatedTask;
     });
 
-    Navigator.of(context).pop();
+    Navigator.of(context as BuildContext).pop();
     db.updateDataBase();
   }
+
+  @override
+  void dispose() {
+    // Remove the observer when the widget is disposed
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      // The app is being put into the background or closed
+      // Trigger your method here
+      onAppClosed();
+    }
+  }
+
+  void onAppClosed() async{
+    // Your method logic when the app is closed
+    MyUser user = MyUser.instance!;
+
+    // user.tasks = db.toDoList;
+    List<Task> list = [];
+
+    for(int i = 0 ;i < db.toDoList.length ; i++){
+      list.add(db.toDoList[i]);
+    }
+
+    user.tasks = list;
+
+    await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.userId)
+          .set(user.getdata());
+
+    // Add your custom logic here
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +206,15 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(onPressed: signUserOut, icon: const Icon(Icons.logout))
         ],
-        title: const Text('TO DO'),
+        title: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HiddenHomePage()),
+            );
+          },
+          child: const Text('TO DO'),
+        ),
         elevation: 0,
       ),
 

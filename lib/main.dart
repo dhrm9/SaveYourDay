@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_4/model/task.dart';
+import 'package:flutter_application_4/notification_Service/notification.dart';
 import 'package:flutter_application_4/pages/auth_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -10,6 +11,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await NotificationService().init(); 
+ 
 
   Hive.registerAdapter(TaskAdapter());
   
@@ -33,7 +36,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
      debugShowCheckedModeBanner: false,
-     home: AuthPage(),
+     home: const AuthPage(),
      theme: ThemeData(primarySwatch: Colors.blue),
     );
   }

@@ -22,6 +22,9 @@ class Task {
   @HiveField(5)
   bool isCompleted;
 
+  @HiveField(6)
+  String? imagePath; // Add this field for imagePath
+
   Task({
     required this.accessType,
     required this.taskDescription,
@@ -29,6 +32,7 @@ class Task {
     required this.taskName,
     required this.taskTag,
     required this.isCompleted,
+    this.imagePath, // Update the constructor to include imagePath
   });
 
   Map<String, dynamic> getdata() => {
@@ -38,5 +42,19 @@ class Task {
         'taskDescription': taskDescription,
         'taskTag': taskTag,
         'isCompleted': isCompleted,
+        'imagePath': imagePath, // Include imagePath in the map
       };
+
+  static Task getTask(Map<String , dynamic> map){
+
+    return Task(
+      accessType: map['accessType'],
+      taskDescription: map['taskDescription'], 
+      taskId: map['taskId'], 
+      taskName: map['taskName'], 
+      taskTag: map['taskTag'], 
+      isCompleted: map['isCompleted']
+      );
+
+  }
 }

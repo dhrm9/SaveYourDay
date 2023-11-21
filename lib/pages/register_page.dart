@@ -43,6 +43,9 @@ class _RegisterpageState extends State<Registerpage> {
           password: passwordController.text,
         );
 
+
+        
+
       } else {
         //show the error message password doesnt match
         showErrorMessage("Password does not match");
