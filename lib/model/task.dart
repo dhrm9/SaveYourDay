@@ -53,7 +53,8 @@ class Task {
       taskId: map['taskId'], 
       taskName: map['taskName'], 
       taskTag: map['taskTag'], 
-      isCompleted: map['isCompleted']
+      isCompleted: map['isCompleted'],
+      imagePath: map['imagePath']
       );
 
   }

@@ -7,7 +7,6 @@ import 'package:flutter_application_4/data/database.dart';
 import 'package:flutter_application_4/hidden/hidden_home_page.dart';
 import 'package:flutter_application_4/model/task.dart';
 import 'package:flutter_application_4/model/user.dart';
-import 'package:flutter_application_4/notification_Service/notification.dart';
 import 'package:flutter_application_4/util/dialog_box.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -21,6 +20,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+
   //refrence to the box
   final _myBox = Hive.box('mybox');
   ToDoDataBase db = ToDoDataBase();
@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   //text controller
   final _controller = TextEditingController();
   final _desciptionController = TextEditingController();
-  final List<String> taskTag = ["new"];
+  final List<String> taskTag = ["Work"];
 
   int generateRandomNumber(int min, int max) {
     final random = Random();
@@ -157,7 +157,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       db.toDoList[index] = updatedTask;
     });
 
-    Navigator.of(context as BuildContext).pop();
+    Navigator.of(context).pop();
     db.updateDataBase();
   }
 
@@ -200,8 +200,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   //access private task
   void makePrivate() {
-    MyUser user = MyUser.instance!;
-
     showDialog(
       context: context,
       builder: (builder) {
@@ -306,6 +304,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             description: t.taskDescription,
             deleteFunction: (context) => deleteTask(index),
             taskTag: t.taskTag,
+            imagePath: t.imagePath,
           );
         },
       ),

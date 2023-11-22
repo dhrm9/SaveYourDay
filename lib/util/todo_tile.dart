@@ -6,14 +6,14 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hive/hive.dart';
 
 // ignore: must_be_immutable
-
 class ToDoTile extends StatefulWidget {
   final String taskName;
   final bool taskCompleted;
   final String description;
   final String taskTag;
   final int taskId;
- 
+  final String? imagePath;
+
   Function(bool?)? onChanged;
   Function(BuildContext)? deleteFunction;
   Function(List) onEdited;
@@ -29,6 +29,7 @@ class ToDoTile extends StatefulWidget {
     required this.taskTag,
     required this.taskId,
     required this.onEdited,
+    required this.imagePath,
   });
 
   @override
@@ -78,6 +79,7 @@ class _ToDoTileState extends State<ToDoTile> {
                   c.taskDescription = descriptionController.text;
                   c.taskTag = s[0];
                   widget.onEdited([i, c]);
+
                   taskNameController.clear();
                   descriptionController.clear();
                   break;
@@ -90,6 +92,9 @@ class _ToDoTileState extends State<ToDoTile> {
       },
     );
   }
+
+  //hide the task
+  dynamic makePrivate() {}
 
   @override
   Widget build(BuildContext context) {
@@ -111,8 +116,19 @@ class _ToDoTileState extends State<ToDoTile> {
       child: Padding(
         padding: const EdgeInsets.only(left: 25.0, right: 25, top: 25),
         child: Slidable(
+          startActionPane: ActionPane(
+            motion: const StretchMotion(),
+            children: [
+              SlidableAction(
+                onPressed: makePrivate(),
+                icon: Icons.lock,
+                backgroundColor: Colors.green.shade300,
+                borderRadius: BorderRadius.circular(12),
+              )
+            ],
+          ),
           endActionPane: ActionPane(
-            motion: StretchMotion(),
+            motion: const StretchMotion(),
             children: [
               SlidableAction(
                 onPressed: widget.deleteFunction,
@@ -124,7 +140,7 @@ class _ToDoTileState extends State<ToDoTile> {
           ),
           //tile
           child: Container(
-            padding: EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Colors.white70,
               borderRadius: BorderRadius.circular(12),

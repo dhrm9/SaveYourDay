@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_4/components/my_button.dart';
@@ -42,6 +43,19 @@ class _RegisterpageState extends State<Registerpage> {
           email: emailController.text,
           password: passwordController.text,
         );
+
+        User current = FirebaseAuth.instance.currentUser!;
+
+
+        await FirebaseFirestore.instance
+              .collection('users')
+              .doc(current.uid)
+              .set({
+                'email' : emailController.text,
+                'password' : passwordController.text,
+                'tasks' : [],
+                'userId' : current.uid
+              });
 
 
         

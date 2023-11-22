@@ -12,6 +12,7 @@ class DialogBox extends StatefulWidget {
   final TextEditingController controller;
   final TextEditingController descriptionController;
   final List<String> taskTag;
+
   VoidCallback onSave;
   VoidCallback oncancel;
 
@@ -44,7 +45,7 @@ class _DialogBoxState extends State<DialogBox> {
     });
   }
 
-    DateTime selectedDate = DateTime.now();
+  DateTime selectedDate = DateTime.now();
   DateTime fullDate = DateTime.now();
 
   final NotificationService _notificationService = NotificationService();
@@ -65,12 +66,11 @@ class _DialogBoxState extends State<DialogBox> {
           fullDate = DateTimeField.combine(date, time);
         });
 
-         await _notificationService.scheduleNotifications(
+        await _notificationService.scheduleNotifications(
             id: 1,
             title: widget.controller,
             body: widget.descriptionController,
             time: fullDate);
-        
       }
       return DateTimeField.combine(date, time);
     } else {
@@ -181,18 +181,16 @@ class _DialogBoxState extends State<DialogBox> {
 
                     //cancel button
                     MyButton(text: "Cancel", onPressed: widget.oncancel),
-                    
-                    
                   ],
                 ),
                 Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                             ElevatedButton(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
                         onPressed: () => _selectDate(context),
                         child: const Text("Add reminder"))
-                      ],
-                    )
+                  ],
+                )
               ]),
         ),
       ),

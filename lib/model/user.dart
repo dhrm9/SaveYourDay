@@ -50,6 +50,10 @@ class MyUser {
       'userId' : userId
     };
   }
+
+  void reset(){
+    instance = null;
+  }
   
   static MyUser getUser(DocumentSnapshot snap){
     Map<String , dynamic> map = snap.data() as Map<String , dynamic>;
