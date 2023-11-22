@@ -52,14 +52,10 @@ class _RegisterpageState extends State<Registerpage> {
               .doc(current.uid)
               .set({
                 'email' : emailController.text,
-                'password' : passwordController.text,
+                'password' : "",
                 'tasks' : [],
                 'userId' : current.uid
               });
-
-
-        
-
       } else {
         //show the error message password doesnt match
         showErrorMessage("Password does not match");

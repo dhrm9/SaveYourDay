@@ -20,7 +20,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
-
   //refrence to the box
   final _myBox = Hive.box('mybox');
   ToDoDataBase db = ToDoDataBase();
@@ -200,53 +199,62 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   //access private task
   void makePrivate() {
-    showDialog(
-      context: context,
-      builder: (builder) {
-        String enteredPassword = ''; // Variable to store the entered password
+    if (MyUser.instance!.password == "") {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HiddenHomePage(),
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (builder) {
+          String enteredPassword = ''; // Variable to store the entered password
 
-        return AlertDialog(
-          title: const Text('Enter Password'),
-          content: TextField(
-            obscureText: true,
-            onChanged: (value) {
-              enteredPassword = value;
-            },
-            decoration: const InputDecoration(
-              labelText: 'Password',
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
+          return AlertDialog(
+            title: const Text('Enter Password'),
+            content: TextField(
+              obscureText: true,
+              onChanged: (value) {
+                enteredPassword = value;
               },
-              child: const Text('Cancel'),
+              decoration: const InputDecoration(
+                labelText: 'Password',
+              ),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
 
-                // Check if the entered password is correct
-                if (enteredPassword == MyUser.instance!.password) {
-                  // Password is correct, navigate to the next screen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const HiddenHomePage(),
-                    ),
-                  );
-                } else {
-                  // Incorrect password, show a message
-                  _showPasswordIncorrectDialog(context);
-                }
-              },
-              child: const Text('Submit'),
-            ),
-          ],
-        );
-      },
-    );
+                  // Check if the entered password is correct
+                  if (enteredPassword == MyUser.instance!.password) {
+                    // Password is correct, navigate to the next screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HiddenHomePage(),
+                      ),
+                    );
+                  } else {
+                    // Incorrect password, show a message
+                    _showPasswordIncorrectDialog(context);
+                  }
+                },
+                child: const Text('Submit'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   Future<void> _showPasswordIncorrectDialog(BuildContext context) {
