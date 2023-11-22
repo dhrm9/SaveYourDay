@@ -20,7 +20,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   //refrence to the box
   final _myBox = Hive.box('mybox');
   ToDoDataBase db = ToDoDataBase();
@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
   //text controller
   final _controller = TextEditingController();
   final _desciptionController = TextEditingController();
-  final List<String> taskTag = ["new"]; 
+  final List<String> taskTag = ["new"];
 
   int generateRandomNumber(int min, int max) {
     final random = Random();
@@ -38,17 +38,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
   @override
   void initState() {
     //if this is the first time ever opening the app,then create default data
-    if (_myBox.get("TODOLIST") == null) {
-      db.createInitialData();
-    } else {
-      //not the first time opening app
-      db.loadData();
-    }
+    // // if (_myBox.get("TODOLIST") == null) {
+    //   db.createInitialData();
+    // } else {
+    //   //not the first time opening app
+    //   db.loadData();
+    // }
 
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-
     loadUserData();
+
+    WidgetsBinding.instance.addObserver(this);
   }
 
   void loadUserData() async {
@@ -61,6 +61,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
 
     MyUser user = MyUser.getUser(snap);
 
+    setState(() {
+      db.createInitialData();
+    });
 
     print(user.email);
   }
@@ -96,7 +99,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
       );
       return; // Exit the method if there is an error
     }
-   
 
     setState(() {
       int newId = generateRandomNumber(1000, 9999);
@@ -144,6 +146,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
 
   void signUserOut() {
     FirebaseAuth.instance.signOut();
+    MyUser.instance!.reset();
   }
 
   void edit(List t) {
@@ -174,29 +177,99 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
     }
   }
 
-  void onAppClosed() async{
+  void onAppClosed() async {
     // Your method logic when the app is closed
     MyUser user = MyUser.instance!;
 
     // user.tasks = db.toDoList;
     List<Task> list = [];
 
-    for(int i = 0 ;i < db.toDoList.length ; i++){
+    for (int i = 0; i < db.toDoList.length; i++) {
       list.add(db.toDoList[i]);
     }
 
     user.tasks = list;
 
     await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.userId)
-          .set(user.getdata());
+        .collection('users')
+        .doc(user.userId)
+        .set(user.getdata());
 
     // Add your custom logic here
   }
 
+  //access private task
+  void makePrivate() {
+    MyUser user = MyUser.instance!;
 
+    showDialog(
+      context: context,
+      builder: (builder) {
+        String enteredPassword = ''; // Variable to store the entered password
 
+        return AlertDialog(
+          title: const Text('Enter Password'),
+          content: TextField(
+            obscureText: true,
+            onChanged: (value) {
+              enteredPassword = value;
+            },
+            decoration: const InputDecoration(
+              labelText: 'Password',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+
+                // Check if the entered password is correct
+                if (enteredPassword == MyUser.instance!.password) {
+                  // Password is correct, navigate to the next screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HiddenHomePage(),
+                    ),
+                  );
+                } else {
+                  // Incorrect password, show a message
+                  _showPasswordIncorrectDialog(context);
+                }
+              },
+              child: const Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showPasswordIncorrectDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Incorrect Password'),
+          content: const Text('The entered password is incorrect.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -207,12 +280,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
           IconButton(onPressed: signUserOut, icon: const Icon(Icons.logout))
         ],
         title: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HiddenHomePage()),
-            );
-          },
+          onTap: makePrivate,
           child: const Text('TO DO'),
         ),
         elevation: 0,
