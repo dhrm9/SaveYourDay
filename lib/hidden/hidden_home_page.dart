@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_4/data/database.dart';
+import 'package:flutter_application_4/model/task.dart';
 import 'package:flutter_application_4/model/user.dart';
+import 'package:flutter_application_4/util/todo_tile.dart';
 
 class HiddenHomePage extends StatefulWidget {
   const HiddenHomePage({super.key});
@@ -10,6 +13,16 @@ class HiddenHomePage extends StatefulWidget {
 }
 
 class _HiddenHomePageState extends State<HiddenHomePage> {
+
+  ToDoDataBase db = ToDoDataBase.instance!;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print(db.hiddenToDoList.length);
+  }
+
   void updatePassword() {
     showDialog(
       context: context,
@@ -62,9 +75,42 @@ class _HiddenHomePageState extends State<HiddenHomePage> {
     );
   }
 
+  //check box was tapped
+  void checkBoxChanged(bool? value, int index) {
+    setState(() {
+      db.hiddenToDoList[index].isCompleted = !db.hiddenToDoList[index].isCompleted;
+    });
+    db.updateDataBase();
+  }
+
+  
+  void edit(List t) {
+    int index = t[0];
+    Task updatedTask = t[1];
+
+    setState(() {
+      db.hiddenToDoList[index] = updatedTask;
+      print(index);
+    });
+
+    Navigator.of(context).pop();
+    db.updateDataBase();
+  }
+
+   //delete task
+  void deleteTask(int index) {
+    setState(() {
+      db.hiddenToDoList.removeAt(index);
+    });
+    db.updateDataBase();
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey,
       appBar: AppBar(
         title: const Text('hidden page'),
         actions: [
@@ -72,6 +118,24 @@ class _HiddenHomePageState extends State<HiddenHomePage> {
               onPressed: updatePassword,
               icon: const Icon(Icons.password_outlined))
         ],
+      ),
+      body: ListView.builder(
+        itemCount: db.hiddenToDoList.length,
+        itemBuilder: (context, index) {
+          Task t = db.hiddenToDoList[index];
+          return ToDoTile(
+            accessType: t.accessType,
+            onChanged: (value) => checkBoxChanged(value, index),
+            onEdited: edit,
+            taskCompleted: t.isCompleted,
+            taskName: t.taskName,
+            taskId: t.taskId,
+            description: t.taskDescription,
+            deleteFunction: (context) => deleteTask(index),
+            taskTag: t.taskTag,
+            imagePath: t.imagePath,
+          );
+        },
       ),
     );
   }

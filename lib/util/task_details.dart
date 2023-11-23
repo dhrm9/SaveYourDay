@@ -6,7 +6,9 @@ import 'package:flutter_application_4/model/task.dart';
 class TaskDetailPage extends StatelessWidget {
   final Task task;
 
-  const TaskDetailPage({required this.task});
+  TaskDetailPage({super.key, required this.task}){
+    print(task.imagePath);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,7 @@ class TaskDetailPage extends StatelessWidget {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage(task
+                    image: NetworkImage(task
                         .imagePath!), // Assuming imagePath is a local asset path
                     fit: BoxFit.cover,
                   ),

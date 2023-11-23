@@ -29,19 +29,19 @@ class AuthService {
           User user = userCredential.user!;
 
           DocumentSnapshot userDoc = await FirebaseFirestore.instance
-                                                            .collection('users')
-                                                            .doc(user.uid)
-                                                            .get();
-          if(!userDoc.exists){
+              .collection('users')
+              .doc(user.uid)
+              .get();
+          if (!userDoc.exists) {
             await FirebaseFirestore.instance
-                                   .collection('users')
-                                   .doc(user.uid)
-                                   .set({
-                                    'email' : user.email,
-                                    'password' : "",
-                                    'tasks' : [],
-                                    'userId' : user.uid
-                                   });
+                .collection('users')
+                .doc(user.uid)
+                .set({
+              'email': user.email,
+              'password': "",
+              'tasks': [],
+              'userId': user.uid
+            });
           }
         } catch (e) {
           final snackBar = SnackBar(content: Text(e.toString()));

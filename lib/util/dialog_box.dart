@@ -12,8 +12,9 @@ class DialogBox extends StatefulWidget {
   final TextEditingController controller;
   final TextEditingController descriptionController;
   final List<String> taskTag;
+  String? image;
 
-  VoidCallback onSave;
+  Function(File?) onSave;
   VoidCallback oncancel;
 
   DialogBox({
@@ -23,6 +24,7 @@ class DialogBox extends StatefulWidget {
     required this.taskTag,
     required this.oncancel,
     required this.onSave,
+    required this.image,
   });
 
   @override
@@ -79,7 +81,7 @@ class _DialogBoxState extends State<DialogBox> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
     return AlertDialog(
       backgroundColor: Colors.grey[300],
       content: Container(
@@ -153,7 +155,7 @@ class _DialogBoxState extends State<DialogBox> {
                 GestureDetector(
                   onTap: _getImage,
                   child: _image == null
-                      ? Container(
+                      ? widget.image == null ? Container(
                           height: 100,
                           width: 200,
                           color: Colors.grey[200],
@@ -161,7 +163,7 @@ class _DialogBoxState extends State<DialogBox> {
                             child: Icon(Icons.camera_alt),
                           ),
                         )
-                      : Image.file(_image!),
+                      : Image.network(widget.image!) : Image.file(_image!)
                 ),
 
                 //buttons -> save + cancel
@@ -173,7 +175,7 @@ class _DialogBoxState extends State<DialogBox> {
                       text: "Save",
                       onPressed: () {
                         // Pass the selected task tag to the onSave callback
-                        widget.onSave();
+                        widget.onSave(_image);
                       },
                     ),
 

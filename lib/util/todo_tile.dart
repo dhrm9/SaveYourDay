@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_4/model/task.dart';
+import 'package:flutter_application_4/services/storage_service.dart';
 import 'package:flutter_application_4/util/dialog_box.dart';
 import 'package:flutter_application_4/util/task_details.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -13,6 +16,7 @@ class ToDoTile extends StatefulWidget {
   final String taskTag;
   final int taskId;
   final String? imagePath;
+  final String accessType;
 
   Function(bool?)? onChanged;
   Function(BuildContext)? deleteFunction;
@@ -21,6 +25,7 @@ class ToDoTile extends StatefulWidget {
 
   // ignore: use_key_in_widget_constructors
   ToDoTile({
+    required this.accessType,
     required this.onChanged,
     required this.taskCompleted,
     required this.description,
@@ -44,7 +49,8 @@ class _ToDoTileState extends State<ToDoTile> {
       MaterialPageRoute(
         builder: (context) => TaskDetailPage(
             task: Task(
-          accessType: "private",
+          accessType: widget.accessType,
+          imagePath: widget.imagePath,
           taskId: widget.taskId,
           taskName: widget.taskName,
           taskDescription: widget.description,
@@ -69,8 +75,25 @@ class _ToDoTileState extends State<ToDoTile> {
             controller: taskNameController,
             descriptionController: descriptionController,
             taskTag: s,
-            onSave: () {
-              List todoList = Hive.box('mybox').get("TODOLIST");
+            image: widget.imagePath,
+            onSave: (File? image) async {
+
+              List todoList;
+              if( widget.accessType == "Public"){
+                todoList = Hive.box('mybox').get("TODOLIST");
+              }
+              else{
+                todoList = Hive.box('mybox').get("HIDDENTODOLIST");
+              }
+              String? imageUrl;
+              if (image != null) {
+                imageUrl = await Storage.uploadImage(image, widget.taskId);
+                if (imageUrl != null) {
+                  print("Image uploaded. Download URL: $imageUrl");
+                } else {
+                  print("Image upload failed.");
+                }
+              }
 
               for (int i = 0; i < todoList.length; i++) {
                 Task c = todoList[i];
@@ -78,6 +101,7 @@ class _ToDoTileState extends State<ToDoTile> {
                   c.taskName = taskNameController.text;
                   c.taskDescription = descriptionController.text;
                   c.taskTag = s[0];
+                  c.imagePath = imageUrl;
                   widget.onEdited([i, c]);
 
                   taskNameController.clear();
@@ -93,8 +117,6 @@ class _ToDoTileState extends State<ToDoTile> {
     );
   }
 
-  //hide the task
-  dynamic makePrivate() {}
 
   @override
   Widget build(BuildContext context) {
@@ -116,17 +138,6 @@ class _ToDoTileState extends State<ToDoTile> {
       child: Padding(
         padding: const EdgeInsets.only(left: 25.0, right: 25, top: 25),
         child: Slidable(
-          startActionPane: ActionPane(
-            motion: const StretchMotion(),
-            children: [
-              SlidableAction(
-                onPressed: makePrivate(),
-                icon: Icons.lock,
-                backgroundColor: Colors.green.shade300,
-                borderRadius: BorderRadius.circular(12),
-              )
-            ],
-          ),
           endActionPane: ActionPane(
             motion: const StretchMotion(),
             children: [

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,8 +8,8 @@ import 'package:flutter_application_4/data/database.dart';
 import 'package:flutter_application_4/hidden/hidden_home_page.dart';
 import 'package:flutter_application_4/model/task.dart';
 import 'package:flutter_application_4/model/user.dart';
+import 'package:flutter_application_4/services/storage_service.dart';
 import 'package:flutter_application_4/util/dialog_box.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 import '../util/todo_tile.dart';
 
@@ -21,8 +22,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   //refrence to the box
-  final _myBox = Hive.box('mybox');
   ToDoDataBase db = ToDoDataBase();
+  String? userEmail; 
+
 
   //text controller
   final _controller = TextEditingController();
@@ -43,7 +45,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     //   //not the first time opening app
     //   db.loadData();
     // }
-
     super.initState();
     loadUserData();
 
@@ -59,12 +60,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     DocumentSnapshot snap = await ref.get();
 
     MyUser user = MyUser.getUser(snap);
-
     setState(() {
+      userEmail = user.email;
       db.createInitialData();
     });
 
-    print(user.email);
+    print(db.hiddenToDoList.length);
   }
 
   //check box was tapped
@@ -75,7 +76,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     db.updateDataBase();
   }
 
-  void saveNewTask() {
+  void saveNewTask(File? image) async {
     // Check if the task name, description, and image path are not empty
     if (_controller.text.isEmpty || _desciptionController.text.isEmpty) {
       showDialog(
@@ -98,23 +99,35 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       );
       return; // Exit the method if there is an error
     }
+    int newId = generateRandomNumber(100000, 999999);
+    String? imageUrl;
+    if (image != null) {
+      imageUrl = await Storage.uploadImage(image, newId);
+      if (imageUrl != null) {
+        print("Image uploaded. Download URL: $imageUrl");
+      } else {
+        print("Image upload failed.");
+      }
+    }
 
     setState(() {
-      int newId = generateRandomNumber(1000, 9999);
-
       Task newTask = Task(
-        accessType: "Private",
+        accessType: "Public",
         taskDescription: _desciptionController.text,
         taskId: newId,
         taskName: _controller.text,
         taskTag: taskTag[0],
         isCompleted: false,
+        imagePath: imageUrl,
       );
+
+      // print(newTask.imagePath);
 
       db.toDoList.add(newTask);
       _controller.clear();
       _desciptionController.clear();
     });
+
     Navigator.of(context).pop();
     db.updateDataBase();
   }
@@ -130,6 +143,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           taskTag: taskTag,
           onSave: saveNewTask,
           oncancel: () => Navigator.of(context).pop(),
+          image: null,
         );
       },
     );
@@ -187,6 +201,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       list.add(db.toDoList[i]);
     }
 
+    for (int i = 0; i < db.hiddenToDoList.length; i++) {
+      list.add(db.hiddenToDoList[i]);
+    }
+
     user.tasks = list;
 
     await FirebaseFirestore.instance
@@ -233,7 +251,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop(); // Close the dialog
-
                   // Check if the entered password is correct
                   if (enteredPassword == MyUser.instance!.password) {
                     // Password is correct, navigate to the next screen
@@ -255,6 +272,23 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         },
       );
     }
+  }
+
+  void showEmailDialog(BuildContext context, String email) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Account Information'),
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text('Email: $email'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _showPasswordIncorrectDialog(BuildContext context) {
@@ -279,15 +313,31 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+
+    
+
+
     return Scaffold(
       backgroundColor: Colors.grey,
       appBar: AppBar(
         actions: [
           IconButton(onPressed: signUserOut, icon: const Icon(Icons.logout))
         ],
-        title: InkWell(
-          onTap: makePrivate,
-          child: const Text('TO DO'),
+        title: Row(
+          children: [
+            IconButton(
+              onPressed: () {
+                showEmailDialog(context, userEmail ?? "");
+                // Handle account icon button tap (if needed)
+              },
+              icon: const Icon(Icons.account_circle),
+            ),
+            const SizedBox(width: 100), // Add some spacing
+            InkWell(
+              onTap: makePrivate,
+              child: const Text('TO DO'),
+            ),
+          ],
         ),
         elevation: 0,
       ),
@@ -304,6 +354,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         itemBuilder: (context, index) {
           Task t = db.toDoList[index];
           return ToDoTile(
+            accessType: t.accessType,
             onChanged: (value) => checkBoxChanged(value, index),
             onEdited: edit,
             taskCompleted: t.isCompleted,
