@@ -180,6 +180,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     db.updateDataBase();
   }
 
+  void onAccessChanged(List t){
+    int index = t[0];
+    Task changingTask = t[1];
+
+    setState(() {
+      db.toDoList.removeAt(index);
+      db.hiddenToDoList.add(changingTask);
+    });
+    Navigator.of(context).pop();
+    db.updateDataBase();
+
+  }
+
   @override
   void dispose() {
     // Remove the observer when the widget is disposed
@@ -260,7 +273,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   // Check if the entered password is correct
                   if (enteredPassword == MyUser.instance!.password) {
                     // Password is correct, navigate to the next screen
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const HiddenHomePage(),
@@ -366,6 +379,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             deleteFunction: (context) => deleteTask(index),
             taskTag: t.taskTag,
             imagePath: t.imagePath,
+            onAccessChanged: onAccessChanged,
           );
         },
       ),

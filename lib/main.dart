@@ -4,7 +4,7 @@ import 'package:flutter_application_4/notification_Service/notification.dart';
 import 'package:flutter_application_4/pages/auth_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'services/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

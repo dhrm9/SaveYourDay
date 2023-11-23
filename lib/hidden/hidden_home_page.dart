@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_4/data/database.dart';
 import 'package:flutter_application_4/model/task.dart';
 import 'package:flutter_application_4/model/user.dart';
+import 'package:flutter_application_4/pages/home_page.dart';
 import 'package:flutter_application_4/util/todo_tile.dart';
 
 class HiddenHomePage extends StatefulWidget {
@@ -13,14 +14,13 @@ class HiddenHomePage extends StatefulWidget {
 }
 
 class _HiddenHomePageState extends State<HiddenHomePage> {
-
   ToDoDataBase db = ToDoDataBase.instance!;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    print(db.hiddenToDoList.length);
+    // print(db.hiddenToDoList.length);
   }
 
   void updatePassword() {
@@ -78,12 +78,12 @@ class _HiddenHomePageState extends State<HiddenHomePage> {
   //check box was tapped
   void checkBoxChanged(bool? value, int index) {
     setState(() {
-      db.hiddenToDoList[index].isCompleted = !db.hiddenToDoList[index].isCompleted;
+      db.hiddenToDoList[index].isCompleted =
+          !db.hiddenToDoList[index].isCompleted;
     });
     db.updateDataBase();
   }
 
-  
   void edit(List t) {
     int index = t[0];
     Task updatedTask = t[1];
@@ -97,7 +97,19 @@ class _HiddenHomePageState extends State<HiddenHomePage> {
     db.updateDataBase();
   }
 
-   //delete task
+  void onAccessChanged(List t) {
+    int index = t[0];
+    Task changingTask = t[1];
+
+    setState(() {
+      db.hiddenToDoList.removeAt(index);
+      db.toDoList.add(changingTask);
+    });
+    Navigator.of(context).pop();
+    db.updateDataBase();
+  }
+
+  //delete task
   void deleteTask(int index) {
     setState(() {
       db.hiddenToDoList.removeAt(index);
@@ -105,14 +117,28 @@ class _HiddenHomePageState extends State<HiddenHomePage> {
     db.updateDataBase();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey,
       appBar: AppBar(
-        title: const Text('hidden page'),
+        title: Row(
+          children: [
+            IconButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomePage(),
+                      ));
+                },
+                icon: const Icon(Icons.arrow_back)),
+            const SizedBox(
+              width: 100,
+            ),
+            const Text('Hidden Tasks'),
+          ],
+        ),
         actions: [
           IconButton(
               onPressed: updatePassword,
@@ -134,6 +160,7 @@ class _HiddenHomePageState extends State<HiddenHomePage> {
             deleteFunction: (context) => deleteTask(index),
             taskTag: t.taskTag,
             imagePath: t.imagePath,
+            onAccessChanged: onAccessChanged,
           );
         },
       ),

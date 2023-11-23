@@ -21,21 +21,22 @@ class ToDoTile extends StatefulWidget {
   Function(bool?)? onChanged;
   Function(BuildContext)? deleteFunction;
   Function(List) onEdited;
+  Function(List) onAccessChanged;
   // add this line
 
   // ignore: use_key_in_widget_constructors
-  ToDoTile({
-    required this.accessType,
-    required this.onChanged,
-    required this.taskCompleted,
-    required this.description,
-    required this.taskName,
-    required this.deleteFunction,
-    required this.taskTag,
-    required this.taskId,
-    required this.onEdited,
-    required this.imagePath,
-  });
+  ToDoTile(
+      {required this.accessType,
+      required this.onChanged,
+      required this.taskCompleted,
+      required this.description,
+      required this.taskName,
+      required this.deleteFunction,
+      required this.taskTag,
+      required this.taskId,
+      required this.onEdited,
+      required this.imagePath,
+      required this.onAccessChanged});
 
   @override
   State<ToDoTile> createState() => _ToDoTileState();
@@ -79,12 +80,10 @@ class _ToDoTileState extends State<ToDoTile> {
             taskTag: s,
             image: widget.imagePath,
             onSave: (File? image) async {
-
               List todoList;
-              if( widget.accessType == "Public"){
+              if (widget.accessType == "Public") {
                 todoList = Hive.box('mybox').get("TODOLIST");
-              }
-              else{
+              } else {
                 todoList = Hive.box('mybox').get("HIDDENTODOLIST");
               }
               String? imageUrl;
@@ -103,8 +102,13 @@ class _ToDoTileState extends State<ToDoTile> {
                   c.taskName = taskNameController.text;
                   c.taskDescription = descriptionController.text;
                   c.taskTag = s[0];
+                  c.accessType = a[0];
                   c.imagePath = imageUrl;
-                  widget.onEdited([i, c]);
+                  if (a[0] != widget.accessType) {
+                    widget.onAccessChanged([i, c]);
+                  } else {
+                    widget.onEdited([i, c]);
+                  }
 
                   taskNameController.clear();
                   descriptionController.clear();
@@ -118,7 +122,6 @@ class _ToDoTileState extends State<ToDoTile> {
       },
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
