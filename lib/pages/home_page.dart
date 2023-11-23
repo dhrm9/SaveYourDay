@@ -23,13 +23,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   //refrence to the box
   ToDoDataBase db = ToDoDataBase();
-  String? userEmail; 
-
+  String? userEmail;
 
   //text controller
   final _controller = TextEditingController();
   final _desciptionController = TextEditingController();
   final List<String> taskTag = ["Work"];
+  final List<String> accessTags = ["Public"];
 
   int generateRandomNumber(int min, int max) {
     final random = Random();
@@ -112,7 +112,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     setState(() {
       Task newTask = Task(
-        accessType: "Public",
+        accessType: accessTags[0],
         taskDescription: _desciptionController.text,
         taskId: newId,
         taskName: _controller.text,
@@ -123,7 +123,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
       // print(newTask.imagePath);
 
-      db.toDoList.add(newTask);
+      if (accessTags[0] == "Public") {
+        db.toDoList.add(newTask);
+      }else{
+        db.hiddenToDoList.add(newTask);
+      }
+
       _controller.clear();
       _desciptionController.clear();
     });
@@ -138,6 +143,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       context: context,
       builder: (context) {
         return DialogBox(
+          accessTags: accessTags,
           controller: _controller,
           descriptionController: _desciptionController,
           taskTag: taskTag,
@@ -313,10 +319,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-
-    
-
-
     return Scaffold(
       backgroundColor: Colors.grey,
       appBar: AppBar(

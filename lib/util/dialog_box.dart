@@ -12,6 +12,7 @@ class DialogBox extends StatefulWidget {
   final TextEditingController controller;
   final TextEditingController descriptionController;
   final List<String> taskTag;
+  final List<String> accessTags;
   String? image;
 
   Function(File?) onSave;
@@ -20,6 +21,7 @@ class DialogBox extends StatefulWidget {
   DialogBox({
     super.key,
     required this.controller,
+    required this.accessTags,
     required this.descriptionController,
     required this.taskTag,
     required this.oncancel,
@@ -33,6 +35,8 @@ class DialogBox extends StatefulWidget {
 
 class _DialogBoxState extends State<DialogBox> {
   final List<String> taskTags = ['Work', 'School', 'Home', 'Other'];
+  final List<String> accessTags = ['Public', 'Private'];
+  late String selectedAccessTag = '';
   late String selectedValue = '';
   File? _image;
 
@@ -81,7 +85,7 @@ class _DialogBoxState extends State<DialogBox> {
   }
 
   @override
-  Widget build(BuildContext context) { 
+  Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: Colors.grey[300],
       content: Container(
@@ -92,6 +96,50 @@ class _DialogBoxState extends State<DialogBox> {
           child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                //task access tag 
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: DropdownButtonFormField2(
+                        decoration: InputDecoration(
+                          isDense: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        isExpanded: true,
+                        hint: Text(
+                          widget.accessTags[0] == 'new'
+                              ? "Add access Type"
+                              : widget.accessTags[0],
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                        items: accessTags
+                            .map(
+                              (item) => DropdownMenuItem<String>(
+                                value: item,
+                                child: Text(
+                                  item,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (String? value) => setState(
+                          () {
+                            if (value != null) {
+                              selectedAccessTag = value;
+                              widget.accessTags[0] = value;
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
                 //get user input
                 TextField(
                   controller: widget.controller,
@@ -153,18 +201,19 @@ class _DialogBoxState extends State<DialogBox> {
                 ),
                 // Image selector
                 GestureDetector(
-                  onTap: _getImage,
-                  child: _image == null
-                      ? widget.image == null ? Container(
-                          height: 100,
-                          width: 200,
-                          color: Colors.grey[200],
-                          child: const Center(
-                            child: Icon(Icons.camera_alt),
-                          ),
-                        )
-                      : Image.network(widget.image!) : Image.file(_image!)
-                ),
+                    onTap: _getImage,
+                    child: _image == null
+                        ? widget.image == null
+                            ? Container(
+                                height: 100,
+                                width: 200,
+                                color: Colors.grey[200],
+                                child: const Center(
+                                  child: Icon(Icons.camera_alt),
+                                ),
+                              )
+                            : Image.network(widget.image!)
+                        : Image.file(_image!)),
 
                 //buttons -> save + cancel
                 Row(

@@ -67,11 +67,13 @@ class _ToDoTileState extends State<ToDoTile> {
     TextEditingController descriptionController =
         TextEditingController(text: widget.description);
     List<String> s = [widget.taskTag];
+    List<String> a = [widget.accessType];
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return DialogBox(
+            accessTags: a,
             controller: taskNameController,
             descriptionController: descriptionController,
             taskTag: s,
