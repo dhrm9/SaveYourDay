@@ -8,6 +8,7 @@ import 'package:flutter_application_4/data/database.dart';
 import 'package:flutter_application_4/hidden/hidden_home_page.dart';
 import 'package:flutter_application_4/model/task.dart';
 import 'package:flutter_application_4/model/user.dart';
+import 'package:flutter_application_4/services/auth_service.dart';
 import 'package:flutter_application_4/services/storage_service.dart';
 import 'package:flutter_application_4/util/dialog_box.dart';
 
@@ -119,6 +120,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         taskTag: taskTag[0],
         isCompleted: false,
         imagePath: imageUrl,
+       // timeStamp: DateTime.now(),
       );
 
       // print(newTask.imagePath);
@@ -166,6 +168,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void signUserOut() {
     FirebaseAuth.instance.signOut();
     MyUser.instance!.reset();
+    AuthService().googleSignOut();
   }
 
   void edit(List t) {
@@ -237,7 +240,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   //access private task
   void makePrivate() {
     if (MyUser.instance!.password == "") {
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => const HiddenHomePage(),
@@ -380,6 +383,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             taskTag: t.taskTag,
             imagePath: t.imagePath,
             onAccessChanged: onAccessChanged,
+            //timeStamp: t.timeStamp,
           );
         },
       ),

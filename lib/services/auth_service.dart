@@ -12,12 +12,13 @@ class AuthService {
   );
 
   FirebaseAuth auth = FirebaseAuth.instance;
+  GoogleSignInAccount? gUser;
 
   Future<void> googleSignIn(BuildContext context) async {
     try {
-      GoogleSignInAccount? gUser = await _googleSignIn.signIn();
+      gUser = await _googleSignIn.signIn();
       if (gUser != null) {
-        GoogleSignInAuthentication? gAuth = await gUser.authentication;
+        GoogleSignInAuthentication? gAuth = await gUser!.authentication;
 
         AuthCredential credential = GoogleAuthProvider.credential(
           idToken: gAuth.idToken,
@@ -55,5 +56,9 @@ class AuthService {
       final snackBar = SnackBar(content: Text(e.toString()));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
+  }
+
+  Future<void> googleSignOut() async{
+    gUser = await _googleSignIn.signOut();
   }
 }

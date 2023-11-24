@@ -1,12 +1,10 @@
-// task_detail_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_application_4/model/task.dart';
 
 class TaskDetailPage extends StatelessWidget {
   final Task task;
 
-  TaskDetailPage({super.key, required this.task}){
+  TaskDetailPage({super.key, required this.task}) {
     print(task.imagePath);
   }
 
@@ -23,22 +21,17 @@ class TaskDetailPage extends StatelessWidget {
           children: [
             if (task.imagePath != null) // Check if imagePath is not null
               Container(
-                height: 200,
+                height: 300,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: NetworkImage(task
                         .imagePath!), // Assuming imagePath is a local asset path
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill,
                   ),
                 ),
               ),
-            if (task.imagePath != null) SizedBox(height: 10),
-            Text(
-              'Image: ${task.imagePath}',
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               'Task Name: ${task.taskName}',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),

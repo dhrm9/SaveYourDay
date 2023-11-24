@@ -25,6 +25,9 @@ class Task {
   @HiveField(6)
   String? imagePath; // Add this field for imagePath
 
+  // @HiveField(7)
+  // DateTime? timeStamp;
+
   Task({
     required this.accessType,
     required this.taskDescription,
@@ -32,7 +35,8 @@ class Task {
     required this.taskName,
     required this.taskTag,
     required this.isCompleted,
-    this.imagePath, // Update the constructor to include imagePath
+    this.imagePath,
+    //required this.timeStamp, // Update the constructor to include imagePath
   });
 
   Map<String, dynamic> getdata() => {
@@ -42,7 +46,10 @@ class Task {
         'taskDescription': taskDescription,
         'taskTag': taskTag,
         'isCompleted': isCompleted,
-        'imagePath': imagePath, // Include imagePath in the map
+        'imagePath': imagePath,
+        //'timeStamp':timeStamp,
+        
+        // Include imagePath in the map
       };
 
   static Task getTask(Map<String , dynamic> map){
@@ -54,7 +61,8 @@ class Task {
       taskName: map['taskName'], 
       taskTag: map['taskTag'], 
       isCompleted: map['isCompleted'],
-      imagePath: map['imagePath']
+      imagePath: map['imagePath'],
+      //timeStamp: map['timeStamp']
       );
 
   }

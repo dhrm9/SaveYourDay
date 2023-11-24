@@ -13,7 +13,8 @@ class HiddenHomePage extends StatefulWidget {
   State<HiddenHomePage> createState() => _HiddenHomePageState();
 }
 
-class _HiddenHomePageState extends State<HiddenHomePage> {
+class _HiddenHomePageState extends State<HiddenHomePage> with WidgetsBindingObserver{
+
   ToDoDataBase db = ToDoDataBase.instance!;
 
   @override
@@ -21,6 +22,50 @@ class _HiddenHomePageState extends State<HiddenHomePage> {
     // TODO: implement initState
     super.initState();
     // print(db.hiddenToDoList.length);
+    WidgetsBinding.instance.addObserver(this);
+
+  }
+
+
+  @override
+  void dispose() {
+    // Remove the observer when the widget is disposed
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      // The app is being put into the background or closed
+      // Trigger your method here
+      onAppClosed();
+    }
+  }
+
+  void onAppClosed() async {
+    // Your method logic when the app is closed
+    MyUser user = MyUser.instance!;
+
+    // user.tasks = db.toDoList;
+    List<Task> list = [];
+
+    for (int i = 0; i < db.toDoList.length; i++) {
+      list.add(db.toDoList[i]);
+    }
+
+    for (int i = 0; i < db.hiddenToDoList.length; i++) {
+      list.add(db.hiddenToDoList[i]);
+    }
+
+    user.tasks = list;
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.userId)
+        .set(user.getdata());
+
+    // Add your custom logic here
   }
 
   void updatePassword() {
@@ -78,12 +123,12 @@ class _HiddenHomePageState extends State<HiddenHomePage> {
   //check box was tapped
   void checkBoxChanged(bool? value, int index) {
     setState(() {
-      db.hiddenToDoList[index].isCompleted =
-          !db.hiddenToDoList[index].isCompleted;
+      db.hiddenToDoList[index].isCompleted = !db.hiddenToDoList[index].isCompleted;
     });
     db.updateDataBase();
   }
 
+  
   void edit(List t) {
     int index = t[0];
     Task updatedTask = t[1];
@@ -97,7 +142,7 @@ class _HiddenHomePageState extends State<HiddenHomePage> {
     db.updateDataBase();
   }
 
-  void onAccessChanged(List t) {
+  void onAccessChanged(List t){
     int index = t[0];
     Task changingTask = t[1];
 
@@ -109,13 +154,15 @@ class _HiddenHomePageState extends State<HiddenHomePage> {
     db.updateDataBase();
   }
 
-  //delete task
+   //delete task
   void deleteTask(int index) {
     setState(() {
       db.hiddenToDoList.removeAt(index);
     });
     db.updateDataBase();
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -124,18 +171,12 @@ class _HiddenHomePageState extends State<HiddenHomePage> {
       appBar: AppBar(
         title: Row(
           children: [
-            IconButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HomePage(),
-                      ));
-                },
-                icon: const Icon(Icons.arrow_back)),
-            const SizedBox(
-              width: 100,
-            ),
+            IconButton(onPressed: () {
+
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage(),));
+
+            }, icon: const Icon(Icons.arrow_back)),
+            const SizedBox(width: 100,),
             const Text('Hidden Tasks'),
           ],
         ),
@@ -150,6 +191,7 @@ class _HiddenHomePageState extends State<HiddenHomePage> {
         itemBuilder: (context, index) {
           Task t = db.hiddenToDoList[index];
           return ToDoTile(
+            //timeStamp: t.timeStamp,
             accessType: t.accessType,
             onChanged: (value) => checkBoxChanged(value, index),
             onEdited: edit,

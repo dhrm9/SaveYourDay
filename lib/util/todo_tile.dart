@@ -17,6 +17,7 @@ class ToDoTile extends StatefulWidget {
   final int taskId;
   final String? imagePath;
   final String accessType;
+  //final DateTime timeStamp;
 
   Function(bool?)? onChanged;
   Function(BuildContext)? deleteFunction;
@@ -25,18 +26,20 @@ class ToDoTile extends StatefulWidget {
   // add this line
 
   // ignore: use_key_in_widget_constructors
-  ToDoTile(
-      {required this.accessType,
-      required this.onChanged,
-      required this.taskCompleted,
-      required this.description,
-      required this.taskName,
-      required this.deleteFunction,
-      required this.taskTag,
-      required this.taskId,
-      required this.onEdited,
-      required this.imagePath,
-      required this.onAccessChanged});
+  ToDoTile({
+    required this.accessType,
+    required this.onChanged,
+    required this.taskCompleted,
+    required this.description,
+    required this.taskName,
+    required this.deleteFunction,
+    required this.taskTag,
+    required this.taskId,
+    required this.onEdited,
+    required this.imagePath,
+    required this.onAccessChanged,
+    //required this.timeStamp,
+  });
 
   @override
   State<ToDoTile> createState() => _ToDoTileState();
@@ -57,6 +60,7 @@ class _ToDoTileState extends State<ToDoTile> {
           taskDescription: widget.description,
           taskTag: widget.taskTag,
           isCompleted: widget.taskCompleted,
+          //timeStamp: widget.timeStamp,
         )),
       ),
     );
@@ -103,7 +107,7 @@ class _ToDoTileState extends State<ToDoTile> {
                   c.taskDescription = descriptionController.text;
                   c.taskTag = s[0];
                   c.accessType = a[0];
-                  c.imagePath = imageUrl;
+                  c.imagePath = imageUrl ?? widget.imagePath;
                   if (a[0] != widget.accessType) {
                     widget.onAccessChanged([i, c]);
                   } else {
@@ -141,7 +145,7 @@ class _ToDoTileState extends State<ToDoTile> {
     return GestureDetector(
       onTap: _viewTaskDetails,
       child: Padding(
-        padding: const EdgeInsets.only(left: 25.0, right: 25, top: 25),
+        padding: const EdgeInsets.only(left: 25.0, right: 25, top: 15),
         child: Slidable(
           endActionPane: ActionPane(
             motion: const StretchMotion(),
@@ -208,6 +212,13 @@ class _ToDoTileState extends State<ToDoTile> {
                                   : TextDecoration.none,
                             ),
                           ),
+                          // Text(
+                          //   'Created at: ${widget.timeStamp.toLocal()}',
+                          //   style: const TextStyle(
+                          //     fontSize: 12,
+                          //     color: Colors.grey,
+                          //   ),
+                          // )
                         ],
                       ),
                     ],
