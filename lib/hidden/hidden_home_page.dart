@@ -176,7 +176,7 @@ class _HiddenHomePageState extends State<HiddenHomePage> with WidgetsBindingObse
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage(),));
 
             }, icon: const Icon(Icons.arrow_back)),
-            const SizedBox(width: 100,),
+            const SizedBox(width: 80,),
             const Text('Hidden Tasks'),
           ],
         ),
@@ -191,7 +191,7 @@ class _HiddenHomePageState extends State<HiddenHomePage> with WidgetsBindingObse
         itemBuilder: (context, index) {
           Task t = db.hiddenToDoList[index];
           return ToDoTile(
-            //timeStamp: t.timeStamp,
+            timeStamp: t.timeStamp,
             accessType: t.accessType,
             onChanged: (value) => checkBoxChanged(value, index),
             onEdited: edit,

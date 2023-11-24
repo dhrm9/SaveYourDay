@@ -1,10 +1,9 @@
 import 'dart:io';
 
-import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_4/notification_Service/notification.dart';
 import 'package:flutter_application_4/util/my_button.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:image_picker/image_picker.dart';
 
 // ignore: must_be_immutable
@@ -15,7 +14,7 @@ class DialogBox extends StatefulWidget {
   final List<String> accessTags;
   String? image;
 
-  Function(File?) onSave;
+  Function(File? , DateTime?) onSave;
   VoidCallback oncancel;
 
   DialogBox({
@@ -39,6 +38,7 @@ class _DialogBoxState extends State<DialogBox> {
   late String selectedAccessTag = '';
   late String selectedValue = '';
   File? _image;
+  DateTime? scheduleTime;
 
   Future<void> _getImage() async {
     final picker = ImagePicker();
@@ -51,38 +51,15 @@ class _DialogBoxState extends State<DialogBox> {
     });
   }
 
-  DateTime selectedDate = DateTime.now();
-  DateTime fullDate = DateTime.now();
+  void getDateTime(){
+     DatePicker.showDateTimePicker(
+          context,
+          showTitleActions: true,
+          onChanged: (date) => scheduleTime = date,
+          onConfirm: (date) {},
+        );
+  }
 
-  final NotificationService _notificationService = NotificationService();
-
-  // Future<DateTime> _selectDate(BuildContext context) async {
-  //   final date = await showDatePicker(
-  //       context: context,
-  //       firstDate: DateTime(1900),
-  //       initialDate: selectedDate,
-  //       lastDate: DateTime(2100));
-  //   if (date != null) {
-  //     final time = await showTimePicker(
-  //       context: context,
-  //       initialTime: TimeOfDay.fromDateTime(selectedDate),
-  //     );
-  //     if (time != null) {
-  //       setState(() {
-  //         fullDate = DateTimeField.combine(date, time);
-  //       });
-
-  //       await _notificationService.scheduleNotifications(
-  //           id: 1,
-  //           title: widget.controller,
-  //           body: widget.descriptionController,
-  //           time: fullDate);
-  //     }
-  //     return DateTimeField.combine(date, time);
-  //   } else {
-  //     return selectedDate;
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -104,10 +81,7 @@ class _DialogBoxState extends State<DialogBox> {
             ),
             padding: const EdgeInsets.all(8.0), // Adjust padding as needed
             child: GestureDetector(
-              onTap: () {
-                // Handle the reminder icon tap
-                print('Reminder icon clicked');
-              },
+              onTap: getDateTime,
               child: const Icon(
                 Icons.alarm,
                 color: Colors.white, // Set the color of the icon
@@ -258,7 +232,7 @@ class _DialogBoxState extends State<DialogBox> {
                 text: "Save",
                 onPressed: () {
                   // Pass the selected task tag to the onSave callback
-                  widget.onSave(_image);
+                  widget.onSave(_image , scheduleTime);
                 },
               ),
 

@@ -8,6 +8,9 @@ import 'package:flutter_application_4/data/database.dart';
 import 'package:flutter_application_4/hidden/hidden_home_page.dart';
 import 'package:flutter_application_4/model/task.dart';
 import 'package:flutter_application_4/model/user.dart';
+import 'package:flutter_application_4/notification_Service/notifi_service.dart';
+import 'package:flutter_application_4/pages/login_or_register.dart';
+import 'package:flutter_application_4/pages/login_page.dart';
 import 'package:flutter_application_4/services/auth_service.dart';
 import 'package:flutter_application_4/services/storage_service.dart';
 import 'package:flutter_application_4/util/dialog_box.dart';
@@ -77,7 +80,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     db.updateDataBase();
   }
 
-  void saveNewTask(File? image) async {
+  void saveNewTask(File? image, DateTime? scheduleTime) async {
     // Check if the task name, description, and image path are not empty
     if (_controller.text.isEmpty || _desciptionController.text.isEmpty) {
       showDialog(
@@ -120,14 +123,27 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         taskTag: taskTag[0],
         isCompleted: false,
         imagePath: imageUrl,
-       // timeStamp: DateTime.now(),
+        timeStamp: scheduleTime,
       );
+
+      if (scheduleTime != null) {
+        debugPrint('Notification Scheduled for $scheduleTime');
+        NotificationService().scheduleNotification(
+            id: newTask.taskId,
+            title: newTask.taskName.length > 15
+                ? '${newTask.taskName.substring(0, 15)}...'
+                : newTask.taskName,
+            body: newTask.taskDescription.length > 20
+                ? '${newTask.taskDescription.substring(0, 20)}...'
+                : newTask.taskDescription,
+            scheduledNotificationDateTime: newTask.timeStamp!);
+      }
 
       // print(newTask.imagePath);
 
       if (accessTags[0] == "Public") {
         db.toDoList.add(newTask);
-      }else{
+      } else {
         db.hiddenToDoList.add(newTask);
       }
 
@@ -169,6 +185,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     FirebaseAuth.instance.signOut();
     MyUser.instance!.reset();
     AuthService().googleSignOut();
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (context) => const LoginOrRegisterPage()));
   }
 
   void edit(List t) {
@@ -183,7 +201,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     db.updateDataBase();
   }
 
-  void onAccessChanged(List t){
+  void onAccessChanged(List t) {
     int index = t[0];
     Task changingTask = t[1];
 
@@ -193,7 +211,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
     Navigator.of(context).pop();
     db.updateDataBase();
-
   }
 
   @override
@@ -383,7 +400,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             taskTag: t.taskTag,
             imagePath: t.imagePath,
             onAccessChanged: onAccessChanged,
-            //timeStamp: t.timeStamp,
+            timeStamp: t.timeStamp,
           );
         },
       ),

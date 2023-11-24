@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_4/model/task.dart';
+import 'package:flutter_application_4/notification_Service/notifi_service.dart';
 import 'package:flutter_application_4/services/storage_service.dart';
 import 'package:flutter_application_4/util/dialog_box.dart';
 import 'package:flutter_application_4/util/task_details.dart';
@@ -17,7 +18,7 @@ class ToDoTile extends StatefulWidget {
   final int taskId;
   final String? imagePath;
   final String accessType;
-  //final DateTime timeStamp;
+  final DateTime? timeStamp;
 
   Function(bool?)? onChanged;
   Function(BuildContext)? deleteFunction;
@@ -38,7 +39,7 @@ class ToDoTile extends StatefulWidget {
     required this.onEdited,
     required this.imagePath,
     required this.onAccessChanged,
-    //required this.timeStamp,
+    required this.timeStamp,
   });
 
   @override
@@ -60,7 +61,7 @@ class _ToDoTileState extends State<ToDoTile> {
           taskDescription: widget.description,
           taskTag: widget.taskTag,
           isCompleted: widget.taskCompleted,
-          //timeStamp: widget.timeStamp,
+          timeStamp: widget.timeStamp,
         )),
       ),
     );
@@ -83,7 +84,7 @@ class _ToDoTileState extends State<ToDoTile> {
             descriptionController: descriptionController,
             taskTag: s,
             image: widget.imagePath,
-            onSave: (File? image) async {
+            onSave: (File? image, DateTime? scheduleTime) async {
               List todoList;
               if (widget.accessType == "Public") {
                 todoList = Hive.box('mybox').get("TODOLIST");
@@ -112,6 +113,21 @@ class _ToDoTileState extends State<ToDoTile> {
                     widget.onAccessChanged([i, c]);
                   } else {
                     widget.onEdited([i, c]);
+                  }
+
+                  if (scheduleTime != null) {
+                    c.timeStamp = scheduleTime;
+                    NotificationService().deleteScheduledNotification(c.taskId);
+                    debugPrint('Notification Scheduled for $scheduleTime');
+                    NotificationService().scheduleNotification(
+                        id: c.taskId,
+                        title: c.taskName.length > 15
+                            ? '${c.taskName.substring(0, 15)}...'
+                            : c.taskName,
+                        body: c.taskDescription.length > 20
+                            ? '${c.taskDescription.substring(0, 20)}...'
+                            : c.taskDescription,
+                        scheduledNotificationDateTime: c.timeStamp!);
                   }
 
                   taskNameController.clear();
@@ -191,7 +207,9 @@ class _ToDoTileState extends State<ToDoTile> {
                         children: <Widget>[
                           //task details
                           Text(
-                            widget.taskName,
+                            widget.taskName.length > 15
+                                ? '${widget.taskName.substring(0, 15)}...'
+                                : widget.taskName,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
@@ -203,8 +221,8 @@ class _ToDoTileState extends State<ToDoTile> {
                           //Description details
                           Text(
                             // widget.description,
-                            widget.description.length > 30
-                                ? widget.description.substring(0, 25) + '...'
+                            widget.description.length > 20
+                                ? '${widget.description.substring(0, 20)}...'
                                 : widget.description,
                             style: TextStyle(
                               decoration: widget.taskCompleted

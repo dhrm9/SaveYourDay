@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_4/model/task.dart';
-import 'package:flutter_application_4/notification_Service/notification.dart';
+import 'package:flutter_application_4/notification_Service/notifi_service.dart';
 import 'package:flutter_application_4/pages/auth_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'services/firebase_options.dart';
+import 'package:timezone/data/latest.dart' as tz;
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await NotificationService().init(); 
+   WidgetsFlutterBinding.ensureInitialized();
+  NotificationService().initNotification();
+  tz.initializeTimeZones();
  
 
   Hive.registerAdapter(TaskAdapter());

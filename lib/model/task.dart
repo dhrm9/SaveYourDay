@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive/hive.dart';
 
 part "task.g.dart"; // Generated file will have the name task.g.dart
@@ -25,8 +26,8 @@ class Task {
   @HiveField(6)
   String? imagePath; // Add this field for imagePath
 
-  // @HiveField(7)
-  // DateTime? timeStamp;
+  @HiveField(7)
+  DateTime? timeStamp;
 
   Task({
     required this.accessType,
@@ -36,7 +37,7 @@ class Task {
     required this.taskTag,
     required this.isCompleted,
     this.imagePath,
-    //required this.timeStamp, // Update the constructor to include imagePath
+    required this.timeStamp, // Update the constructor to include imagePath
   });
 
   Map<String, dynamic> getdata() => {
@@ -47,12 +48,18 @@ class Task {
         'taskTag': taskTag,
         'isCompleted': isCompleted,
         'imagePath': imagePath,
-        //'timeStamp':timeStamp,
+        'timeStamp':timeStamp,
         
         // Include imagePath in the map
       };
 
   static Task getTask(Map<String , dynamic> map){
+
+    Timestamp? timestamp = map['timeStamp'];
+    DateTime ? dt;
+    if(timestamp != null){
+       dt = timestamp.toDate();
+    }
 
     return Task(
       accessType: map['accessType'],
@@ -62,7 +69,7 @@ class Task {
       taskTag: map['taskTag'], 
       isCompleted: map['isCompleted'],
       imagePath: map['imagePath'],
-      //timeStamp: map['timeStamp']
+      timeStamp: dt,
       );
 
   }

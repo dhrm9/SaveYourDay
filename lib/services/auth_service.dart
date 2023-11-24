@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_4/pages/home_page.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
@@ -43,7 +44,12 @@ class AuthService {
               'tasks': [],
               'userId': user.uid
             });
+
+          
           }
+          // ignore: use_build_context_synchronously
+          Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const HomePage()));
         } catch (e) {
           final snackBar = SnackBar(content: Text(e.toString()));
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
