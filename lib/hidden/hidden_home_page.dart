@@ -6,6 +6,7 @@ import 'package:flutter_application_4/model/user.dart';
 import 'package:flutter_application_4/pages/home_page.dart';
 import 'package:flutter_application_4/util/todo_tile.dart';
 
+// Stateful widget for the Hidden Home Page
 class HiddenHomePage extends StatefulWidget {
   const HiddenHomePage({super.key});
 
@@ -13,19 +14,18 @@ class HiddenHomePage extends StatefulWidget {
   State<HiddenHomePage> createState() => _HiddenHomePageState();
 }
 
-class _HiddenHomePageState extends State<HiddenHomePage> with WidgetsBindingObserver{
-
+// State class for the Hidden Home Page
+class _HiddenHomePageState extends State<HiddenHomePage>
+    with WidgetsBindingObserver {
+  // Instance of the ToDoDataBase class to manage the database
   ToDoDataBase db = ToDoDataBase.instance!;
+  int sortingType = 1;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    // print(db.hiddenToDoList.length);
     WidgetsBinding.instance.addObserver(this);
-
   }
-
 
   @override
   void dispose() {
@@ -43,11 +43,10 @@ class _HiddenHomePageState extends State<HiddenHomePage> with WidgetsBindingObse
     }
   }
 
+  // Method to execute when the app is closed
   void onAppClosed() async {
-    // Your method logic when the app is closed
     MyUser user = MyUser.instance!;
 
-    // user.tasks = db.toDoList;
     List<Task> list = [];
 
     for (int i = 0; i < db.toDoList.length; i++) {
@@ -64,10 +63,9 @@ class _HiddenHomePageState extends State<HiddenHomePage> with WidgetsBindingObse
         .collection('users')
         .doc(user.userId)
         .set(user.getdata());
-
-    // Add your custom logic here
   }
 
+  // Method to update the user's password
   void updatePassword() {
     showDialog(
       context: context,
@@ -105,10 +103,8 @@ class _HiddenHomePageState extends State<HiddenHomePage> with WidgetsBindingObse
                       // Add other fields to update as needed
                     });
                     MyUser.instance!.password = enteredPassword;
-                    // print('Password  updated successfully!');
-                    // print(MyUser.instance!.password);
                   } catch (error) {
-                    print('Error updating password : $error');
+                    print('Error updating password: $error');
                   }
                 }
               },
@@ -120,29 +116,30 @@ class _HiddenHomePageState extends State<HiddenHomePage> with WidgetsBindingObse
     );
   }
 
-  //check box was tapped
+  // Method to handle checkbox state change
   void checkBoxChanged(bool? value, int index) {
     setState(() {
-      db.hiddenToDoList[index].isCompleted = !db.hiddenToDoList[index].isCompleted;
+      db.hiddenToDoList[index].isCompleted =
+          !db.hiddenToDoList[index].isCompleted;
     });
-    db.updateDataBase();
+    db.updateDataBase(sortingType);
   }
 
-  
+  // Method to handle task editing
   void edit(List t) {
     int index = t[0];
     Task updatedTask = t[1];
 
     setState(() {
       db.hiddenToDoList[index] = updatedTask;
-      print(index);
     });
 
     Navigator.of(context).pop();
-    db.updateDataBase();
+    db.updateDataBase(sortingType);
   }
 
-  void onAccessChanged(List t){
+  // Method to handle access change (from hidden to public)
+  void onAccessChanged(List t) {
     int index = t[0];
     Task changingTask = t[1];
 
@@ -151,61 +148,137 @@ class _HiddenHomePageState extends State<HiddenHomePage> with WidgetsBindingObse
       db.toDoList.add(changingTask);
     });
     Navigator.of(context).pop();
-    db.updateDataBase();
+    db.updateDataBase(sortingType);
   }
 
-   //delete task
+  // Method to delete a hidden task
   void deleteTask(int index) {
     setState(() {
       db.hiddenToDoList.removeAt(index);
     });
-    db.updateDataBase();
+    db.updateDataBase(sortingType);
   }
-
-
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey,
-      appBar: AppBar(
-        title: Row(
-          children: [
-            IconButton(onPressed: () {
+Widget build(BuildContext context) {
+  // Create a scaffold with a grey background
+  return Scaffold(
+    backgroundColor: Colors.grey,
 
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage(),));
-
-            }, icon: const Icon(Icons.arrow_back)),
-            const SizedBox(width: 80,),
-            const Text('Hidden Tasks'),
-          ],
-        ),
-        actions: [
+    // Define the app bar
+    appBar: AppBar(
+      // Set the app bar title to a row of widgets
+      title: Row(
+        children: [
+          // Add an icon button to go back to the home page
           IconButton(
-              onPressed: updatePassword,
-              icon: const Icon(Icons.password_outlined))
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomePage(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.arrow_back),
+          ),
+
+          // Add a spacer to create space between the icon button and the text
+          const SizedBox(width: 80),
+
+          // Add the text "Hidden Tasks"
+          const Text('Hidden Tasks'),
         ],
       ),
-      body: ListView.builder(
-        itemCount: db.hiddenToDoList.length,
-        itemBuilder: (context, index) {
-          Task t = db.hiddenToDoList[index];
-          return ToDoTile(
-            timeStamp: t.timeStamp,
-            accessType: t.accessType,
-            onChanged: (value) => checkBoxChanged(value, index),
-            onEdited: edit,
-            taskCompleted: t.isCompleted,
-            taskName: t.taskName,
-            taskId: t.taskId,
-            description: t.taskDescription,
-            deleteFunction: (context) => deleteTask(index),
-            taskTag: t.taskTag,
-            imagePath: t.imagePath,
-            onAccessChanged: onAccessChanged,
-          );
-        },
-      ),
-    );
-  }
+
+      // Add an icon button to update the password
+      actions: [
+        IconButton(
+          onPressed: updatePassword,
+          icon: const Icon(Icons.password_outlined),
+        ),
+      ],
+    ),
+
+    // Add a floating action button to sort tasks
+    floatingActionButton: FloatingActionButton(
+      onPressed: () {
+        showModalBottomSheet(
+          context: context,
+          builder: (BuildContext context) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // Add a list tile to sort tasks by tag
+                ListTile(
+                  leading: const Icon(Icons.tag),
+                  title: const Text('Task Tag'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      sortingType = 1;
+                    });
+                    db.updateDataBase(sortingType);
+                  },
+                ),
+
+                // Add a list tile to sort tasks alphabetically
+                ListTile(
+                  leading: const Icon(Icons.abc),
+                  title: const Text('A-Z'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      sortingType = 2;
+                    });
+                    db.updateDataBase(sortingType);
+                  },
+                ),
+
+                // Add a list tile to sort tasks by remaining time
+                ListTile(
+                  leading: const Icon(Icons.access_alarm),
+                  title: const Text('Remaining Time'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      sortingType = 3;
+                    });
+                    db.updateDataBase(sortingType);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+      child: const Icon(Icons.sort),
+    ),
+
+    // Create a list view of hidden tasks
+    body: ListView.builder(
+      itemCount: db.hiddenToDoList.length,
+      itemBuilder: (context, index) {
+        // Get the task at the current index
+        Task t = db.hiddenToDoList[index];
+
+        // Create a ToDoTile widget to display the task
+        return ToDoTile(
+          timeStamp: t.timeStamp,
+          accessType: t.accessType,
+          onChanged: (value) => checkBoxChanged(value, index),
+          onEdited: edit,
+          taskCompleted: t.isCompleted,
+          taskName: t.taskName,
+          taskId: t.taskId,
+          description: t.taskDescription,
+          deleteFunction: (context) => deleteTask(index),
+          taskTag: t.taskTag,
+          imagePath: t.imagePath,
+          onAccessChanged: onAccessChanged,
+        );
+      },
+    ),
+  );
+}
 }

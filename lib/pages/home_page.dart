@@ -10,7 +10,6 @@ import 'package:flutter_application_4/model/task.dart';
 import 'package:flutter_application_4/model/user.dart';
 import 'package:flutter_application_4/notification_Service/notifi_service.dart';
 import 'package:flutter_application_4/pages/login_or_register.dart';
-import 'package:flutter_application_4/pages/login_page.dart';
 import 'package:flutter_application_4/services/auth_service.dart';
 import 'package:flutter_application_4/services/storage_service.dart';
 import 'package:flutter_application_4/util/dialog_box.dart';
@@ -28,6 +27,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   //refrence to the box
   ToDoDataBase db = ToDoDataBase();
   String? userEmail;
+  int sortingType = 3;
 
   //text controller
   final _controller = TextEditingController();
@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     setState(() {
       db.toDoList[index].isCompleted = !db.toDoList[index].isCompleted;
     });
-    db.updateDataBase();
+    db.updateDataBase(sortingType);
   }
 
   void saveNewTask(File? image, DateTime? scheduleTime) async {
@@ -152,7 +152,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
 
     Navigator.of(context).pop();
-    db.updateDataBase();
+    db.updateDataBase(sortingType);
   }
 
   //create a new task
@@ -178,7 +178,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     setState(() {
       db.toDoList.removeAt(index);
     });
-    db.updateDataBase();
+    db.updateDataBase(sortingType);
   }
 
   void signUserOut() {
@@ -198,7 +198,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
 
     Navigator.of(context).pop();
-    db.updateDataBase();
+    db.updateDataBase(sortingType);
   }
 
   void onAccessChanged(List t) {
@@ -210,7 +210,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       db.hiddenToDoList.add(changingTask);
     });
     Navigator.of(context).pop();
-    db.updateDataBase();
+    db.updateDataBase(sortingType);
   }
 
   @override
@@ -378,10 +378,67 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       ),
 
       //button to add the tasks
-      floatingActionButton: FloatingActionButton(
-        onPressed: createNewTask,
-        child: const Icon(Icons.add),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: createNewTask,
+            child: const Icon(Icons.add),
+          ),
+          const SizedBox(
+            height: 16,
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      ListTile(
+                        leading: const Icon(Icons.tag),
+                        title: const Text('Task Tag'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            sortingType = 1;
+                          });
+                          db.updateDataBase(sortingType);
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.abc),
+                        title: const Text('A-Z'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            sortingType = 2;
+                          });
+                          db.updateDataBase(sortingType);
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.access_alarm),
+                        title: const Text('Remaining Time'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            sortingType = 3;
+                          });
+                          db.updateDataBase(sortingType);
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: const Icon(Icons.sort),
+          ),
+        ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
       //build a dynamic list so that we can add later by + button
       body: ListView.builder(

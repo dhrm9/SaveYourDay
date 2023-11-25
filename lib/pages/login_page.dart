@@ -7,7 +7,9 @@ import 'package:flutter_application_4/pages/home_page.dart';
 import 'package:flutter_application_4/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
-  final Function()? onTap;
+  final Function()?
+      onTap; // Callback function to navigate to the registration page
+
   const LoginPage({
     super.key,
     required this.onTap,
@@ -18,40 +20,35 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  //text editing controller
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final TextEditingController emailController =
+      TextEditingController(); // Controller for the email text field
+  final TextEditingController passwordController =
+      TextEditingController(); // Controller for the password text field
 
-//sign user in method
+  // Method to sign in the user using email and password
   void signUserIn() async {
-    // //progress indicator
-    // showDialog(
-    //   context: context,
-    //   builder: (context) {
-    //     return const Center(
-    //       child: CircularProgressIndicator(),
-    //     );
-    //   },
-    // );
-
-    //try sign in
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
+        email: emailController.text, // Get the email from the controller
+        password:
+            passwordController.text, // Get the password from the controller
       );
 
-      // ignore: use_build_context_synchronously
+      // Navigate to the home page if login is successful
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const HomePage()));
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
     } on FirebaseAuthException catch (e) {
-      Navigator.pop(context);
+      Navigator.pop(context); // Close the loading indicator
 
+      // Show error message if login fails
       showErrorMessage(e.code);
     }
   }
 
-  //wrong credentials method
+  // Method to display error messages based on the error code
+
   void showErrorMessage(String message) {
     showDialog(
       context: context,
@@ -76,8 +73,8 @@ class _LoginPageState extends State<LoginPage> {
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               const SizedBox(height: 50),
-              //logo
 
+              // App logo
               const Icon(
                 Icons.lock_person,
                 size: 100,
@@ -85,7 +82,8 @@ class _LoginPageState extends State<LoginPage> {
 
               const SizedBox(height: 50),
 
-              //welcome back your have been misse d
+              // Welcome message
+
               Text(
                 'Welcome back you\'ve been missed!',
                 style: TextStyle(
@@ -96,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
 
               const SizedBox(height: 25),
 
-              //user textfield
+              // Email text field
               MyTextField(
                 controller: emailController,
                 hintText: 'Email/Username',
@@ -104,7 +102,8 @@ class _LoginPageState extends State<LoginPage> {
               ),
 
               const SizedBox(height: 10),
-              //password textfield
+
+              // Password text field
               MyTextField(
                 controller: passwordController,
                 hintText: 'Password',
@@ -112,7 +111,8 @@ class _LoginPageState extends State<LoginPage> {
               ),
 
               const SizedBox(height: 10),
-              //forgot password
+
+              // Forgot password link
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Row(
@@ -130,13 +130,14 @@ class _LoginPageState extends State<LoginPage> {
 
               const SizedBox(height: 25),
 
-              //sign in button
+              // Sign in button
               MyButton(
                 text: "Sign In",
                 onTap: signUserIn,
               ),
 
               const SizedBox(height: 30),
+
               //or continue with goggle
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),

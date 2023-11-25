@@ -14,7 +14,7 @@ class DialogBox extends StatefulWidget {
   final List<String> accessTags;
   String? image;
 
-  Function(File? , DateTime?) onSave;
+  Function(File?, DateTime?) onSave;
   VoidCallback oncancel;
 
   DialogBox({
@@ -33,17 +33,31 @@ class DialogBox extends StatefulWidget {
 }
 
 class _DialogBoxState extends State<DialogBox> {
+  // Define the list of available task tags
   final List<String> taskTags = ['Work', 'School', 'Home', 'Other'];
-  final List<String> accessTags = ['Public', 'Private'];
-  late String selectedAccessTag = '';
-  late String selectedValue = '';
-  File? _image;
-  DateTime? scheduleTime;
 
+  // Define the list of available access tags
+  final List<String> accessTags = ['Public', 'Private'];
+
+  // Initialize the selected access tag and selected value
+  late String selectedAccessTag =
+      widget.accessTags[0]; // Initialize with the initial access tag value
+  late String selectedValue =
+      widget.taskTag[0]; // Initialize with the initial task tag value
+
+  // Define variables for handling image selection and schedule time
+  File? _image; // Variable to hold the selected image file
+  DateTime? scheduleTime; // Variable to hold the selected schedule time
+
+  // Function to handle image selection from the gallery
   Future<void> _getImage() async {
+    // Create an instance of the ImagePicker
     final picker = ImagePicker();
+
+    // Pick an image from the gallery using the ImagePicker
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
+    // Update the _image variable if an image was selected
     setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
@@ -51,15 +65,18 @@ class _DialogBoxState extends State<DialogBox> {
     });
   }
 
-  void getDateTime(){
-     DatePicker.showDateTimePicker(
-          context,
-          showTitleActions: true,
-          onChanged: (date) => scheduleTime = date,
-          onConfirm: (date) {},
-        );
-  }
+  // Function to display the date time picker for selecting a schedule time
+  void getDateTime() {
+    // Show the date time picker dialog using the DatePicker.showDateTimePicker method
+    DatePicker.showDateTimePicker(
+      context,
+      showTitleActions: true, // Display title actions in the dialog
+      onChanged: (date) => scheduleTime =
+          date, // Update the scheduleTime variable with the selected date
 
+      onConfirm: (date) {},
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +90,7 @@ class _DialogBoxState extends State<DialogBox> {
             style: TextStyle(fontStyle: FontStyle.italic),
           ),
 
-          // reminder icon 
+          // reminder icon
           Container(
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
@@ -232,7 +249,7 @@ class _DialogBoxState extends State<DialogBox> {
                 text: "Save",
                 onPressed: () {
                   // Pass the selected task tag to the onSave callback
-                  widget.onSave(_image , scheduleTime);
+                  widget.onSave(_image, scheduleTime);
                 },
               ),
 
